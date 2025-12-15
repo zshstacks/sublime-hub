@@ -10,12 +10,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/zshstacks/markdown-zsh/config"
-	"github.com/zshstacks/markdown-zsh/initializers"
-	"github.com/zshstacks/markdown-zsh/models"
+	"github.com/zshstacks/markdown-zsh/internal/infrastructure"
+	"github.com/zshstacks/markdown-zsh/modules/users/models"
+	"gorm.io/gorm"
 )
 
-func TryRefresh(c echo.Context) (claims *JWTClaims, err error) {
+func TryRefresh(c echo.Context, db *gorm.DB, cfg infrastructure.AppConfig) (*JWTClaims, error) {
 
 	cookie, err := c.Cookie("refresh_token")
 	if err != nil {
@@ -31,7 +31,7 @@ func TryRefresh(c echo.Context) (claims *JWTClaims, err error) {
 	secret := parts[1]
 
 	var refresh models.RefreshToken
-	result := initializers.DB.Preload("User").First(&refresh, "token_id = ?", tokenID)
+	result := db.Preload("User").First(&refresh, "token_id = ?", tokenID)
 	if result.Error != nil {
 		return nil, echo.NewHTTPError(http.StatusUnauthorized, "Refresh token not found")
 	}
@@ -59,19 +59,20 @@ func TryRefresh(c echo.Context) (claims *JWTClaims, err error) {
 		TokenHash: newHashStr,
 		UserID:    user.ID,
 		IssuedAt:  time.Now(),
-		ExpiresAt: time.Now().Add(time.Duration(config.App.JWT.RefreshTokenTTL) * 24 * time.Hour),
+		ExpiresAt: time.Now().Add(time.Duration(cfg.JWT.RefreshTokenTTL) * 24 * time.Hour),
 	}
 
-	if err := initializers.DB.Create(&newRefresh).Error; err != nil {
+	if err := db.Create(&newRefresh).Error; err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to create a new refresh token")
 	}
 
 	now := time.Now()
 	refresh.RevokedAt = &now
 	refresh.ReplacedBy = &newTokenID
-	initializers.DB.Save(&refresh)
+	db.Save(&refresh)
 
-	accessToken, err := SignJWT(user)
+	// Pass config to SignJWT
+	accessToken, err := SignJWT(cfg, user)
 	if err != nil {
 		return nil, echo.NewHTTPError(http.StatusInternalServerError, "Failed to create access token")
 	}
@@ -80,28 +81,28 @@ func TryRefresh(c echo.Context) (claims *JWTClaims, err error) {
 		Name:     "token",
 		Value:    accessToken,
 		Path:     "/",
-		MaxAge:   config.App.JWT.AccessTokenTTL * 60,
+		MaxAge:   cfg.JWT.AccessTokenTTL * 60,
 		HttpOnly: true,
-		Secure:   config.App.Cookie.Secure,
-		SameSite: config.App.Cookie.SameSite,
+		Secure:   cfg.Cookie.Secure,
+		SameSite: cfg.Cookie.SameSite,
 	})
 
 	c.SetCookie(&http.Cookie{
 		Name:     "refresh_token",
 		Value:    newTokenID + "." + newSecret,
 		Path:     "/",
-		MaxAge:   config.App.JWT.RefreshTokenTTL * 24 * 60 * 60,
+		MaxAge:   cfg.JWT.RefreshTokenTTL * 24 * 60 * 60,
 		HttpOnly: true,
-		Secure:   config.App.Cookie.Secure,
-		SameSite: config.App.Cookie.SameSite,
+		Secure:   cfg.Cookie.Secure,
+		SameSite: cfg.Cookie.SameSite,
 	})
 
-	claims = &JWTClaims{
+	claims := &JWTClaims{
 		Sub: user.ID,
 		UID: user.UniqueID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(config.App.JWT.AccessTokenTTL) * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(cfg.JWT.AccessTokenTTL) * time.Minute)),
 		},
 	}
 

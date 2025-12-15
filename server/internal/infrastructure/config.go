@@ -1,13 +1,14 @@
-package config
+package infrastructure
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
-)
 
-var App *AppConfig
+	"github.com/joho/godotenv"
+)
 
 type AppConfig struct {
 	Environment string
@@ -53,26 +54,32 @@ type CORSConfig struct {
 	AllowedHeaders []string
 }
 
-func Init() {
+// LoadConfig loads .env and returns the AppConfig struct
+func LoadConfig() AppConfig {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Warning: .env file not found, using system environment variables")
+	}
+
 	env := getEnv("APP_ENV", "development")
 	isProd := strings.ToLower(env) == "production"
 
-	App = &AppConfig{
+	return AppConfig{
 		Environment: env,
 
 		Server: ServerConfig{
 			Port:         getEnv("PORT", "8000"),
 			ReadTimeout:  getEnvAsInt("READ_TIMEOUT", 10),
 			WriteTimeout: getEnvAsInt("WRITE_TIMEOUT", 10),
-			Debug:        !isProd, // Debug only in development
+			Debug:        !isProd,
 		},
 
 		Database: DatabaseConfig{
-			Host:            getEnv("DB_HOST", "DB_HOST"),
-			Port:            getEnv("DB_PORT", "DB_PORT"),
-			User:            getEnv("DB_USER", "DB_USER"),
-			Password:        getEnv("DB_PASSWORD", "DB_PASSWORD"),
-			Name:            getEnv("DB_NAME", "DB_NAME"),
+			Host:            getEnv("DB_HOST", "localhost"),
+			Port:            getEnv("DB_PORT", "5432"),
+			User:            getEnv("DB_USER", "postgres"),
+			Password:        getEnv("DB_PASSWORD", "postgres"),
+			Name:            getEnv("DB_NAME", "sublime_hub"),
 			MaxOpenConns:    getEnvAsInt("DB_MAX_OPEN_CONNS", 25),
 			MaxIdleConns:    getEnvAsInt("DB_MAX_IDLE_CONNS", 5),
 			ConnMaxLifetime: getEnvAsInt("DB_CONN_MAX_LIFETIME", 300),
@@ -84,7 +91,7 @@ func Init() {
 		},
 
 		JWT: JWTConfig{
-			Secret:          getEnv("JWT_SECRET", "JWT_SECRET"),
+			Secret:          getEnv("JWT_SECRET", "secret-key"),
 			AccessTokenTTL:  getEnvAsInt("JWT_ACCESS_TTL", 15),
 			RefreshTokenTTL: getEnvAsInt("JWT_REFRESH_TTL", 7),
 		},
@@ -97,8 +104,7 @@ func Init() {
 	}
 }
 
-//helpers
-
+// Helpers
 func getEnv(key, defaultVal string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
@@ -128,16 +134,7 @@ func getCORSOrigins(isProd bool) []string {
 		if origins != "" {
 			return strings.Split(origins, ",")
 		}
-		return []string{"https://sssss.com"}
+		return []string{"https://yourdomain.com"}
 	}
-	//dev
 	return []string{"http://localhost:3000", "http://localhost:8000"}
-}
-
-func (c *AppConfig) IsProduction() bool {
-	return strings.ToLower(c.Environment) == "production"
-}
-
-func (c *AppConfig) IsDevelopment() bool {
-	return !c.IsProduction()
 }
