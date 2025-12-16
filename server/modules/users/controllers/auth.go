@@ -216,6 +216,40 @@ func (ac *AuthController) Logout(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"message": "Logged out"})
 }
 
+func (ac *AuthController) DeleteUser(c echo.Context) error {
+	user := c.Get("user")
+	userModel, ok := user.(models.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve user")
+	}
+
+	if err := ac.DB.Delete(&userModel).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user")
+	}
+
+	//w/o c.cookie, bcs of cascade in user models User User
+	c.SetCookie(&http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   ac.Cfg.Cookie.Secure,
+		SameSite: ac.Cfg.Cookie.SameSite,
+	})
+	c.SetCookie(&http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   ac.Cfg.Cookie.Secure,
+		SameSite: ac.Cfg.Cookie.SameSite,
+	})
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "User deleted"})
+}
+
 func (ac *AuthController) GetCurrentUser(c echo.Context) error {
 	user := c.Get("user")
 	userModel, ok := user.(models.User)

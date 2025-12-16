@@ -25,5 +25,6 @@ func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 	private.Use(middleware.RequireAuth(db, cfg))
 	{
 		private.GET("/current", authController.GetCurrentUser)
+		private.DELETE("/current/delete", authController.DeleteUser)
 	}
 }
