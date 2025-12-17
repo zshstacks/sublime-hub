@@ -13,11 +13,14 @@ function AuthWrapper({ children }: { children: ReactNode }) {
   const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
-    const fetchData = async () => {
-      await dispatch(loadUser());
-    };
-    fetchData();
-  }, []);
+    dispatch(loadUser());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!auth.isLoading && auth.user === null) {
+      router.push("/login");
+    }
+  }, [auth.isLoading, auth.user, router]);
 
   if (auth.isLoading) {
     return (
@@ -27,12 +30,11 @@ function AuthWrapper({ children }: { children: ReactNode }) {
     );
   }
 
-  if (auth.user === null) {
-    router.push("/login");
+  if (!auth.user) {
     return null;
   }
 
-  return <div>{children}</div>;
+  return <>{children}</>;
 }
 
 export default AuthWrapper;

@@ -56,7 +56,7 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
     const result = await dispatch(loginUser(userData));
 
     if (result.type === "auth/loginUser/fulfilled") {
-      router.push("/markdown");
+      router.push("/hub");
       setIsFormSubmitting(false);
     } else {
       console.log("Login failed: ", result.payload);
