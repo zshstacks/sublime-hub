@@ -9,7 +9,7 @@ interface HubLayoutProps {
 const HubLayout = ({ children }: HubLayoutProps) => {
   return (
     <AuthWrapper>
-      <div className="flex h-screen w-full overflow-hidden bg-slate-950 text-slate-50">
+      <div className="flex h-screen w-full overflow-hidden bg-[#131A25] text-slate-50">
         <Sidebar />
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>

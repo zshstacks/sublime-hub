@@ -24,8 +24,8 @@ function AuthWrapper({ children }: { children: ReactNode }) {
 
   if (auth.isLoading) {
     return (
-      <div className=" flex font-black min-h-screen justify-center text-center">
-        <SpinnerCustom className="size-8" />
+      <div className=" flex font-black min-h-screen justify-center text-center bg-[#131A25]">
+        <SpinnerCustom className="size-8 text-neutral-400" />
       </div>
     );
   }

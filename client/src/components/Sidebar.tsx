@@ -1,30 +1,49 @@
 "use client";
 
+import { RiBankLine } from "react-icons/ri";
+import { MdRadar } from "react-icons/md";
+import { GoGraph } from "react-icons/go";
+import Link from "next/link";
+import { usePathname } from "next/dist/client/components/navigation";
+
+const navItems = [
+  { name: "Finance", href: "/hub/finance", icon: <RiBankLine size={20} /> },
+  { name: "Uptime Monitor", href: "/hub/monitor", icon: <MdRadar size={20} /> },
+  { name: "Crypto Tracker", href: "/hub/crypto", icon: <GoGraph size={19} /> },
+];
+
 function Sidebar() {
+  const pathname = usePathname();
+
   return (
-    <aside className="hidden w-64 flex-col border-r border-slate-800 bg-slate-900 md:flex">
-      <div className="flex h-16 items-center border-b border-slate-800 px-6 font-bold text-xl tracking-tight">
-        SublimeHub
+    <aside className="hidden w-68 flex-col md:flex shadow-md bg-[linear-gradient(180deg,#14202D_0%,#0b1a22_45%,#07141b_100%)]">
+      <div className="flex h-16 items-center  px-6 font-bold text-2xl tracking-tight ">
+        <Link href="/hub">SublimeHub</Link>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
-        <div className="text-xs font-semibold text-slate-500 uppercase px-2 mb-2">
-          Modules
-        </div>
+      <nav className="flex-1 space-y-2 p-4 ">
+        {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
 
-        <div className="px-2 py-2 hover:bg-slate-800 rounded-md cursor-pointer">
-          Finance
-        </div>
-        <div className="px-2 py-2 hover:bg-slate-800 rounded-md cursor-pointer">
-          Uptime Monitor
-        </div>
-        <div className="px-2 py-2 hover:bg-slate-800 rounded-md cursor-pointer">
-          Crypto Tracker
-        </div>
+          return (
+            <Link
+              href={item.href}
+              key={item.name}
+              className={`px-2 py-3 rounded-md cursor-pointer flex gap-4 items-center transition-colors duration-75 group ${isActive ? "bg-[#131A25] " : ""}`}
+            >
+              <div
+                className={`transition-colors ${isActive ? "text-[#38CA6B]" : "group-hover:text-[#38CA6B]"}`}
+              >
+                {item.icon}
+              </div>
+              <span className="text-sm">{item.name}</span>
+            </Link>
+          );
+        })}
       </nav>
 
-      <div className="border-t border-slate-800 p-4 text-sm text-slate-400">
-        User Profile / Logout
+      <div className=" p-6 text-sm text-white border-2">
+        <div>User Profile</div>
       </div>
     </aside>
   );
