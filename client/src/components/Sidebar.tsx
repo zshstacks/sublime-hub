@@ -133,7 +133,7 @@ const Sidebar = () => {
             )}
 
             <button
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={() => setCollapsed((v) => !v)}
               className="rounded-lg p-1.5 hover:bg-white/10 text-[#38CA6B] transition-colors cursor-pointer"
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
