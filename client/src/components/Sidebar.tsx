@@ -7,8 +7,11 @@ import { IoIosMore } from "react-icons/io";
 import { FaCaretLeft } from "react-icons/fa6";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser } from "@/redux/authSlice/asyncActions";
 
 const navItems = [
   { name: "Finance", href: "/hub/finance", icon: <RiBankLine size={20} /> },
@@ -21,12 +24,20 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const user = {
-    name: "zshstacks",
-    avatarUrl: null,
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch: AppDispatch = useDispatch();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      router.replace("/login");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const initials = user.name?.charAt(0).toUpperCase() ?? "?";
+  const initials = user?.username?.charAt(0).toUpperCase() ?? "?";
 
   return (
     <aside
@@ -96,22 +107,14 @@ const Sidebar = () => {
         >
           {/* User info & Avatar */}
           <div className="flex items-center gap-3 min-w-0">
-            {user.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt="User avatar"
-                className="h-9 w-9 rounded-full object-cover ring-2 ring-white/5"
-              />
-            ) : (
-              <div className="h-9 w-9 flex-shrink-0 rounded-full bg-gradient-to-tr from-[#38CA6B] to-emerald-700 flex items-center justify-center text-sm font-bold text-white">
-                {initials}
-              </div>
-            )}
+            <div className="h-9 w-9 flex-shrink-0 rounded-full bg-gradient-to-tr from-[#38CA6B] to-emerald-700 flex items-center justify-center text-sm font-bold text-white">
+              {initials}
+            </div>
 
             {!collapsed && (
               <div className="min-w-0 transition-opacity duration-300">
                 <div className="text-sm font-semibold truncate text-white">
-                  {user.name}
+                  {user?.username}
                 </div>
                 <div className="text-xs text-white/40">Free Plan</div>
               </div>
@@ -156,7 +159,10 @@ const Sidebar = () => {
                 Settings
               </li>
               <div className="h-px bg-white/5 mx-2 my-1" />
-              <li className="px-4 py-2.5 hover:bg-white/5 cursor-pointer text-red-400 transition-colors font-medium">
+              <li
+                onClick={handleLogout}
+                className="px-4 py-2.5 hover:bg-white/5 cursor-pointer text-red-400 transition-colors font-medium"
+              >
                 Logout
               </li>
             </ul>

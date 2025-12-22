@@ -40,3 +40,15 @@ export const loadUser = createAsyncThunk(
     }
   },
 );
+
+export const logoutUser = createAsyncThunk(
+  "auth/logout",
+  async (_, thunkAPI) => {
+    try {
+      const res = await api.post("/auth/refresh/logout");
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to logout");
+    }
+  },
+);

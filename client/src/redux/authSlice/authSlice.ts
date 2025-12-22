@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   loadUser,
   loginUser,
+  logoutUser,
   registerUser,
 } from "@/redux/authSlice/asyncActions";
 
@@ -62,8 +63,25 @@ const authSlice = createSlice({
       .addCase(loadUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
+        console.log(action.payload);
       })
       .addCase(loadUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //logout
+      .addCase(logoutUser.pending, (state) => {
+        state.user = null;
+        state.error = null;
+        state.isLoading = true;
+      })
+      .addCase(logoutUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
