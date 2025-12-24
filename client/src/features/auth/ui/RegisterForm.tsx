@@ -121,117 +121,123 @@ function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
   const globalError = auth.error;
 
   return (
-    <Card {...props}>
-      <CardHeader>
-        <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Enter your information below to create your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="username">Displayed name</FieldLabel>
-              <Input
-                id="username"
-                name="username"
-                value={username}
-                onChange={handleInputChange}
-                type="text"
-                placeholder="John Doe"
-                isInvalid={!!validateErrors.username}
-                required
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                name="email"
-                value={email}
-                onChange={handleInputChange}
-                type="email"
-                placeholder="m@example.com"
-                required
-                isInvalid={!!validateErrors.email}
-              />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input
-                id="password"
-                name="password"
-                value={password}
-                onChange={handleInputChange}
-                type="password"
-                isInvalid={!!passwordError}
-                required
-              />
-              {passwordError ? (
-                <FieldDescription className="text-red-600">
-                  {passwordError}
-                </FieldDescription>
-              ) : (
-                <FieldDescription
-                  className={`${passwordError ? "text-red-600" : ""}`}
-                >
-                  Must be at least 8 characters long.
-                </FieldDescription>
-              )}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input
-                id="confirm-password"
-                name="confirm-password"
-                value={confirmPassword}
-                onChange={handleInputChange}
-                type="password"
-                isInvalid={!!confirmPasswordError}
-                required
-              />
-              {confirmPasswordError ? (
-                <FieldDescription className="text-red-600">
-                  {confirmPasswordError}
-                </FieldDescription>
-              ) : (
-                <FieldDescription>
-                  Please confirm your password.
-                </FieldDescription>
-              )}
-            </Field>
+    <div>
+      <Card {...props}>
+        <CardHeader>
+          <CardTitle>Create an account</CardTitle>
+          <CardDescription>
+            Enter your information below to create your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
-                {globalError && (
-                  <FieldDescription className="text-red-600 ">
-                    {globalError}
-                  </FieldDescription>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isFormSubmitting}
-                  className="cursor-pointer"
-                >
-                  {isFormSubmitting ? "Creating Account..." : "Create Account"}
-                </Button>
-
-                <FieldDescription className="px-6 text-center">
-                  Already have an account? <Link href="/login">Sign in</Link>
+                <FieldLabel htmlFor="username">Displayed name</FieldLabel>
+                <Input
+                  id="username"
+                  name="username"
+                  value={username}
+                  onChange={handleInputChange}
+                  type="text"
+                  placeholder="John Doe"
+                  isInvalid={!!validateErrors.username}
+                  required
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input
+                  id="email"
+                  value={email}
+                  onChange={handleInputChange}
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  isInvalid={!!validateErrors.email}
+                />
+                <FieldDescription>
+                  We&apos;ll use this to contact you. We will not share your
+                  email with anyone else.
                 </FieldDescription>
               </Field>
+              <Field>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <Input
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={handleInputChange}
+                  type="password"
+                  isInvalid={!!passwordError}
+                  required
+                />
+                {passwordError ? (
+                  <FieldDescription className="text-red-600">
+                    {passwordError}
+                  </FieldDescription>
+                ) : (
+                  <FieldDescription
+                    className={`${passwordError ? "text-red-600" : ""}`}
+                  >
+                    Must be at least 8 characters long.
+                  </FieldDescription>
+                )}
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="confirm-password">
+                  Confirm Password
+                </FieldLabel>
+                <Input
+                  id="confirm-password"
+                  name="confirm-password"
+                  value={confirmPassword}
+                  onChange={handleInputChange}
+                  type="password"
+                  isInvalid={!!confirmPasswordError}
+                  required
+                />
+                {confirmPasswordError ? (
+                  <FieldDescription className="text-red-600">
+                    {confirmPasswordError}
+                  </FieldDescription>
+                ) : (
+                  <FieldDescription>
+                    Please confirm your password.
+                  </FieldDescription>
+                )}
+              </Field>
+              <FieldGroup>
+                <Field>
+                  {globalError && (
+                    <FieldDescription className="text-red-600 ">
+                      {globalError}
+                    </FieldDescription>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={isFormSubmitting}
+                    className="cursor-pointer"
+                  >
+                    {isFormSubmitting
+                      ? "Creating Account..."
+                      : "Create Account"}
+                  </Button>
+
+                  <FieldDescription className="px-6 text-center">
+                    Already have an account? <Link href="/login">Sign in</Link>
+                  </FieldDescription>
+                </Field>
+              </FieldGroup>
             </FieldGroup>
-          </FieldGroup>
-        </form>
-      </CardContent>
-    </Card>
+          </form>
+        </CardContent>
+      </Card>{" "}
+      {/*<div>*/}
+      {/*  <EmailOTP />*/}
+      {/*</div>*/}
+    </div>
   );
 }
 
