@@ -25,7 +25,6 @@ func NewAuthController(db *gorm.DB, cfg infrastructure.AppConfig) *AuthControlle
 	return &AuthController{DB: db, Cfg: cfg}
 }
 
-// Register (Notice the receiver `ac *AuthController`)
 func (ac *AuthController) Register(c echo.Context) error {
 	var body struct {
 		Email    string `json:"email"`
@@ -36,7 +35,6 @@ func (ac *AuthController) Register(c echo.Context) error {
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
 	}
-	// ... validation checks omitted for brevity (same as your code) ...
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 12)
 	if err != nil {

@@ -12,11 +12,20 @@ import (
 
 type AppConfig struct {
 	Environment string
+	Email       EmailConfig
 	Server      ServerConfig
 	Database    DatabaseConfig
 	Cookie      CookieConfig
 	JWT         JWTConfig
 	CORS        CORSConfig
+}
+
+type EmailConfig struct {
+	Host     string
+	Password string
+	Port     int
+	From     string
+	Username string
 }
 
 type ServerConfig struct {
@@ -72,6 +81,14 @@ func LoadConfig() AppConfig {
 			ReadTimeout:  getEnvAsInt("READ_TIMEOUT", 10),
 			WriteTimeout: getEnvAsInt("WRITE_TIMEOUT", 10),
 			Debug:        !isProd,
+		},
+
+		Email: EmailConfig{
+			Port:     getEnvAsInt("SMTP_PORT", 587),
+			Username: getEnv("SMTP_USERNAME", ""),
+			Password: getEnv("SMTP_PASSWORD", ""),
+			From:     getEnv("SMTP_FROM", ""),
+			Host:     getEnv("SMTP_HOST", ""),
 		},
 
 		Database: DatabaseConfig{
