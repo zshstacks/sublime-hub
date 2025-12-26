@@ -16,11 +16,12 @@ func SendEmail(cfg AppConfig, to string, subject string, body string) error {
 
 	auth := smtp.PlainAuth("", cfg.Email.Username, cfg.Email.Password, cfg.Email.Host)
 
-	header := fmt.Sprintf("To: %s\r\n"+
+	header := fmt.Sprintf("From: %s\r\n"+
+		"To: %s\r\n"+
 		"Subject: %s\r\n"+
 		"MIME-Version: 1.0\r\n"+
 		"Content-Type: text/html; charset=UTF-8\r\n"+
-		"\r\n", to, subject)
+		"\r\n", cfg.Email.From, to, subject)
 
 	msg := []byte(header + body)
 

@@ -88,16 +88,20 @@ func (ac *AuthController) ResendOTP(c echo.Context) error {
 	ac.DB.Save(&user)
 
 	go func(email, code string) {
+		log.Printf("Trying to sent new OTP to: %s", email)
+
 		htmlBody, err := infrastructure.ParseTemplate(code)
 		if err != nil {
-			log.Printf("Template error: %v", err)
+			log.Printf("Template error ResendOTP: %v", err)
 			return
 		}
+
 		err = infrastructure.SendEmail(ac.Cfg, email, "Your new confirmation code", htmlBody)
 		if err != nil {
-			log.Printf("Email error: %v", err)
+			log.Printf("SMTP error ResendOTP: %v", err)
+		} else {
+			log.Printf("Email successfully sent to %s", email)
 		}
-
 	}(user.Email, otp)
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Successfully sent confirmation code"})
