@@ -3,6 +3,7 @@ package controllers
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -23,6 +24,83 @@ type AuthController struct {
 
 func NewAuthController(db *gorm.DB, cfg infrastructure.AppConfig) *AuthController {
 	return &AuthController{DB: db, Cfg: cfg}
+}
+
+func (ac *AuthController) VerifyEmail(c echo.Context) error {
+	var body struct {
+		Email string `json:"email"`
+		Code  string `json:"code"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
+	}
+
+	user, err := helpers.FindUserByEmail(ac.DB, body.Email)
+	if err != nil || user.ID == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "No user with that email exists")
+	}
+
+	if user.EmailConfirmationCode != body.Code {
+		return echo.NewHTTPError(http.StatusBadRequest, "Code does not match")
+	}
+
+	if time.Now().After(user.ConfirmationCodeExpiresAt) {
+		return echo.NewHTTPError(http.StatusBadRequest, "User confirmation code expired")
+	}
+
+	user.IsEmailConfirmed = true
+	user.EmailConfirmationCode = ""
+	user.ConfirmationCodeExpiresAt = time.Time{}
+
+	ac.DB.Save(&user)
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Email verified"})
+
+}
+
+func (ac *AuthController) ResendOTP(c echo.Context) error {
+	var body struct {
+		Email string `json:"email"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
+	}
+
+	user, err := helpers.FindUserByEmail(ac.DB, body.Email)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "No user with that email exists")
+	}
+
+	if user.IsEmailConfirmed == true {
+		return echo.NewHTTPError(http.StatusBadRequest, "You already confirmed your email")
+	}
+
+	otp, err := helpers.GenerateOTP(6)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to generate OTP")
+	}
+
+	user.EmailConfirmationCode = otp
+	user.ConfirmationCodeExpiresAt = time.Now().Add(15 * time.Minute)
+
+	ac.DB.Save(&user)
+
+	go func(email, code string) {
+		htmlBody, err := infrastructure.ParseTemplate(code)
+		if err != nil {
+			log.Printf("Template error: %v", err)
+			return
+		}
+		err = infrastructure.SendEmail(ac.Cfg, email, "Your new confirmation code", htmlBody)
+		if err != nil {
+			log.Printf("Email error: %v", err)
+		}
+
+	}(user.Email, otp)
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Successfully sent confirmation code"})
 }
 
 func (ac *AuthController) Register(c echo.Context) error {
@@ -46,6 +124,13 @@ func (ac *AuthController) Register(c echo.Context) error {
 		Password: string(hash),
 		Username: body.Username,
 	}
+
+	otp, err := helpers.GenerateOTP(6)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to generate otp")
+	}
+	user.EmailConfirmationCode = otp
+	user.ConfirmationCodeExpiresAt = time.Now().Add(15 * time.Minute)
 
 	const maxAttempts = 5
 	var created bool
@@ -73,6 +158,19 @@ func (ac *AuthController) Register(c echo.Context) error {
 	if !created {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create user")
 	}
+
+	go func(email, code string) {
+		htmlBody, err := infrastructure.ParseTemplate(code)
+		if err != nil {
+			log.Printf("Template error: %v", err)
+			return
+		}
+		err = infrastructure.SendEmail(ac.Cfg, email, "Your new confirmation code", htmlBody)
+		if err != nil {
+			log.Printf("Email error: %v", err)
+		}
+
+	}(user.Email, otp)
 
 	resp := struct {
 		ID        uint      `json:"id"`
@@ -104,6 +202,10 @@ func (ac *AuthController) Login(c echo.Context) error {
 	user, err := helpers.FindUserByEmail(ac.DB, body.Email)
 	if err != nil || user.ID == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid email or password")
+	}
+
+	if user.IsEmailConfirmed == false {
+		return echo.NewHTTPError(http.StatusForbidden, "Your email is not confirmed")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
@@ -249,10 +351,10 @@ func (ac *AuthController) DeleteUser(c echo.Context) error {
 }
 
 func (ac *AuthController) GetCurrentUser(c echo.Context) error {
-	user := c.Get("user")
-	userModel, ok := user.(models.User)
+	user, ok := c.Get("user").(models.User)
 	if !ok {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve user")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve user from context")
 	}
-	return c.JSON(http.StatusOK, userModel)
+
+	return c.JSON(http.StatusOK, user)
 }

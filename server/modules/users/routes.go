@@ -18,6 +18,8 @@ func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 		public.POST("login", authController.Login)
 		public.POST("auth/refresh", authController.Refresh)
 		public.POST("auth/refresh/logout", authController.Logout)
+		public.POST("auth/verify-email", authController.VerifyEmail)
+		public.POST("auth/resend-otp", authController.ResendOTP)
 	}
 
 	private := e.Group("/user")

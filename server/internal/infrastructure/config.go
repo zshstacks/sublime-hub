@@ -86,7 +86,7 @@ func LoadConfig() AppConfig {
 		Email: EmailConfig{
 			Port:     getEnvAsInt("SMTP_PORT", 587),
 			Username: getEnv("SMTP_USERNAME", ""),
-			Password: getEnv("SMTP_PASSWORD", ""),
+			Password: getEnv("SMTP_PASS", ""),
 			From:     getEnv("SMTP_FROM", ""),
 			Host:     getEnv("SMTP_HOST", ""),
 		},
