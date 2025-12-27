@@ -5,6 +5,8 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  resendOtp,
+  verifyEmail,
 } from "@/redux/authSlice/asyncActions";
 
 const initialState: AuthState = {
@@ -63,7 +65,6 @@ const authSlice = createSlice({
       .addCase(loadUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
-        console.log(action.payload);
       })
       .addCase(loadUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -82,6 +83,34 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //verify-email
+      .addCase(verifyEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyEmail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(verifyEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //resend otp
+      .addCase(resendOtp.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resendOtp.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(resendOtp.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

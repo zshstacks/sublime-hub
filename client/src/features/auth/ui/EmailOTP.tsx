@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   InputOTP,
@@ -10,26 +11,74 @@ import {
 import { MdOutlineEmail } from "react-icons/md";
 import { RiLoader3Line } from "react-icons/ri";
 import { FaArrowLeft } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
+import { resendOtp, verifyEmail } from "@/redux/authSlice/asyncActions";
+import { clearAuthErrors } from "@/redux/authSlice/authSlice";
+import { toast } from "sonner";
 
-const EmailOTP = () => {
-  const [value, setValue] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
+interface EmailOTPProps {
+  setIsRegistered: (b: boolean) => void;
+  onSuccess: () => void;
+  userEmail: string;
+}
 
-  const handleVerify = () => {
-    setIsLoading(true);
+const EmailOTP: React.FC<EmailOTPProps> = ({
+  setIsRegistered,
+  onSuccess,
+  userEmail,
+}) => {
+  const [value, setValue] = useState("");
+  const [timer, setTimer] = useState(60);
+  const successTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    setTimeout(() => setIsLoading(false), 2000);
+  const auth = useSelector((state: RootState) => state.auth);
+  const dispatch: AppDispatch = useDispatch();
+  const error = auth.error;
+
+  const handleInputChange = (val: string) => {
+    setValue(val);
+    dispatch(clearAuthErrors());
   };
 
+  const handleVerify = async () => {
+    const result = await dispatch(
+      verifyEmail({ email: userEmail, code: value }),
+    );
+    if (result.type === "auth/verifyEmail/fulfilled") {
+      toast.success("Email successfully verified! 🎉");
+      successTimeoutRef.current = setTimeout(() => {
+        onSuccess();
+      }, 2000);
+    } else {
+      toast.error(error);
+    }
+  };
+
+  const resendConfirmationCode = async () => {
+    const result = await dispatch(resendOtp(userEmail));
+    if (result.type === "auth/resendOtp/fulfilled") {
+      toast.info("New code sent to your email.");
+      setTimer(60);
+    }
+  };
+
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timer]);
+
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) clearTimeout(successTimeoutRef.current);
+    };
+  }, []);
+
   return (
-    /* Overlay */
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
-      {/* Modal */}
-      <div
-        className="w-full max-w-md bg-white dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-300"
-        onClick={(e) => e.stopPropagation()} // Prevents closing by clicking on the window itself
-      >
-        {/* Header */}
+      <div className="w-full max-w-md bg-white dark:bg-slate-950 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-300">
         <div className="flex flex-col items-center text-center space-y-4">
           <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-full text-indigo-600 dark:text-indigo-400">
             <MdOutlineEmail className="w-8 h-8" />
@@ -41,18 +90,17 @@ const EmailOTP = () => {
             <p className="text-sm text-slate-500 dark:text-slate-400">
               We've sent a code to{" "}
               <span className="font-medium text-slate-900 dark:text-slate-200">
-                Email address
+                {userEmail}
               </span>
             </p>
           </div>
         </div>
 
-        {/* OTP Input */}
         <div className="flex flex-col items-center my-8 space-y-6">
           <InputOTP
             maxLength={6}
             value={value}
-            onChange={(val) => setValue(val)}
+            onChange={handleInputChange}
             autoFocus
           >
             <InputOTPGroup className="gap-2">
@@ -65,24 +113,15 @@ const EmailOTP = () => {
               ))}
             </InputOTPGroup>
           </InputOTP>
-
-          <div className="h-5">
-            {value.length === 6 && !isLoading && (
-              <p className="text-xs font-medium text-indigo-600 animate-pulse">
-                Ready to verify
-              </p>
-            )}
-          </div>
         </div>
 
-        {/* Actions */}
         <div className="space-y-4">
           <Button
-            className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white transition-all shadow-md"
-            disabled={value.length !== 6 || isLoading}
             onClick={handleVerify}
+            className="w-full h-12 bg-[#171717]  text-white transition-all shadow-md cursor-pointer"
+            disabled={value.length !== 6 || auth.isLoading}
           >
-            {isLoading ? (
+            {auth.isLoading ? (
               <span className="flex items-center gap-2">
                 <RiLoader3Line className="w-4 h-4 animate-spin" /> Verifying...
               </span>
@@ -93,15 +132,21 @@ const EmailOTP = () => {
 
           <p className="text-center text-sm text-slate-500">
             Didn't get the code?{" "}
-            <button className="text-indigo-600 font-medium hover:underline">
-              Resend
+            <button
+              disabled={timer > 0 || auth.isLoading}
+              onClick={resendConfirmationCode}
+              className="text-[#171717] font-medium hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+            >
+              {timer > 0 ? `Wait ${timer}s` : "Resend"}
             </button>
           </p>
         </div>
 
-        {/* Close/Back */}
         <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
-          <button className="flex items-center justify-center w-full text-xs text-slate-400 hover:text-slate-600 transition-colors">
+          <button
+            onClick={() => setIsRegistered(false)}
+            className="flex items-center justify-center w-full text-xs text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+          >
             <FaArrowLeft className="w-3 h-3 mr-1" />
             Back to registration
           </button>

@@ -16,12 +16,13 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "@/redux/authSlice/asyncActions";
-import { useRouter } from "next/navigation";
 import { clearAuthErrors } from "@/redux/authSlice/authSlice";
+import EmailOTP from "@/features/auth/ui/EmailOTP";
+import { useRouter } from "next/navigation";
 
 interface ValidateErrors {
   password?: string;
@@ -37,11 +38,11 @@ function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [validateErrors, setValidateErrors] = useState<ValidateErrors>({});
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
-
-  const dispatch: AppDispatch = useDispatch();
-  const auth = useSelector((state: RootState) => state.auth);
+  const [isRegistered, setIsRegistered] = useState(false);
 
   const router = useRouter();
+  const dispatch: AppDispatch = useDispatch();
+  const auth = useSelector((state: RootState) => state.auth);
 
   const clearForm = () => {
     setUsername("");
@@ -50,6 +51,13 @@ function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
     setConfirmPassword("");
     setValidateErrors({});
   };
+
+  const handleVerificationSuccess = useCallback(() => {
+    setIsRegistered(false);
+
+    clearForm();
+    router.push("/login");
+  }, [router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (validateErrors[e.target.name]) {
@@ -107,8 +115,7 @@ function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
     const result = await dispatch(registerUser(userData));
 
     if (result.type === "auth/registerUser/fulfilled") {
-      clearForm();
-      router.push("/login");
+      setIsRegistered(true);
       setIsFormSubmitting(false);
     } else {
       console.log("Register error: ", result.payload);
@@ -149,6 +156,7 @@ function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
+                  name="email"
                   value={email}
                   onChange={handleInputChange}
                   type="email"
@@ -233,10 +241,16 @@ function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
             </FieldGroup>
           </form>
         </CardContent>
-      </Card>{" "}
-      {/*<div>*/}
-      {/*  <EmailOTP />*/}
-      {/*</div>*/}
+      </Card>
+      {isRegistered && (
+        <div>
+          <EmailOTP
+            setIsRegistered={setIsRegistered}
+            onSuccess={handleVerificationSuccess}
+            userEmail={email}
+          />
+        </div>
+      )}
     </div>
   );
 }

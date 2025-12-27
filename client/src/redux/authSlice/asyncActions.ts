@@ -52,3 +52,27 @@ export const logoutUser = createAsyncThunk(
     }
   },
 );
+
+export const verifyEmail = createAsyncThunk(
+  "auth/verifyEmail",
+  async ({ email, code }: { email: string; code: string }, thunkAPI) => {
+    try {
+      const res = await api.post("/auth/verify-email", { email, code });
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to verify email");
+    }
+  },
+);
+
+export const resendOtp = createAsyncThunk(
+  "auth/resendOtp",
+  async (email: string, thunkAPI) => {
+    try {
+      const res = await api.post("/auth/resend-otp", { email });
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to resend confirmation code");
+    }
+  },
+);
