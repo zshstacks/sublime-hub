@@ -194,9 +194,16 @@ func (ac *AuthController) ResetPassword(c echo.Context) error {
 	}
 
 	//soft revoke
-	ac.DB.Model(&models.RefreshToken{}).
+	now := time.Now()
+	err = ac.DB.Model(&models.RefreshToken{}).
 		Where("user_id = ? AND revoked_at IS NULL", user.ID).
-		Update("revoked_at", time.Now())
+		Updates(map[string]interface{}{
+			"revoked_at": &now,
+		}).Error
+
+	if err != nil {
+		log.Printf("Failed to revoke tokens: %v", err)
+	}
 
 	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Password updated successfully. All previous sessions have been logged out.",
