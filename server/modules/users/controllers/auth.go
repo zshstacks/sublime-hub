@@ -88,9 +88,9 @@ func (ac *AuthController) ResendOTP(c echo.Context) error {
 	ac.DB.Save(&user)
 
 	go func(email, code string) {
-		log.Printf("Trying to sent new OTP to: %s", email)
+		log.Printf("Trying to sent new Email OTP to: %s", email)
 
-		htmlBody, err := infrastructure.ParseTemplate(code)
+		htmlBody, err := infrastructure.ParseTemplate(code, "templates/verify_email.html")
 		if err != nil {
 			log.Printf("Template error ResendOTP: %v", err)
 			return
@@ -105,6 +105,102 @@ func (ac *AuthController) ResendOTP(c echo.Context) error {
 	}(user.Email, otp)
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Successfully sent confirmation code"})
+}
+
+func (ac *AuthController) ForgotPassword(c echo.Context) error {
+	var body struct {
+		Email string `json:"email"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
+	}
+
+	user, err := helpers.FindUserByEmail(ac.DB, body.Email)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "No user with that email exists")
+	}
+
+	otp, err := helpers.GenerateOTP(6)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to generate OTP")
+	}
+
+	user.PasswordResetCode = otp
+	user.PasswordResetCodeExpiresAt = time.Now().Add(15 * time.Minute)
+
+	ac.DB.Save(&user)
+
+	go func(email, code string) {
+		log.Printf("Trying to sent new Email OTP to: %s", email)
+
+		htmlBody, err := infrastructure.ParseTemplate(code, "templates/reset_password.html")
+		if err != nil {
+			log.Printf("Template error ResendOTP: %v", err)
+		}
+
+		err = infrastructure.SendEmail(ac.Cfg, email, "Your new reset password code", htmlBody)
+		if err != nil {
+			log.Printf("SMTP error ResendOTP: %v", err)
+		} else {
+			log.Printf("Email successfully sent to %s", email)
+		}
+
+	}(user.Email, otp)
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Successfully sent reset password"})
+
+}
+
+func (ac *AuthController) ResetPassword(c echo.Context) error {
+	var body struct {
+		Email       string `json:"email"`
+		Code        string `json:"code"`
+		NewPassword string `json:"new_password"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
+	}
+
+	if body.Email == "" || body.Code == "" || body.NewPassword == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "All fields (email, code, new_password) are required")
+	}
+
+	user, err := helpers.FindUserByEmail(ac.DB, body.Email)
+	if err != nil || user.ID == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "User not found")
+	}
+
+	if user.PasswordResetCode == "" || user.PasswordResetCode != body.Code {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid or already used reset code")
+	}
+
+	if time.Now().After(user.PasswordResetCodeExpiresAt) {
+		return echo.NewHTTPError(http.StatusBadRequest, "Reset code expired")
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), 12)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Error processing password")
+	}
+
+	user.Password = string(hash)
+	user.PasswordResetCode = ""
+	user.PasswordResetCodeExpiresAt = time.Time{}
+
+	if err := ac.DB.Save(&user).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update user")
+	}
+
+	//soft revoke
+	ac.DB.Model(&models.RefreshToken{}).
+		Where("user_id = ? AND revoked_at IS NULL", user.ID).
+		Update("revoked_at", time.Now())
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Password updated successfully. All previous sessions have been logged out.",
+	})
 }
 
 func (ac *AuthController) Register(c echo.Context) error {
@@ -164,7 +260,7 @@ func (ac *AuthController) Register(c echo.Context) error {
 	}
 
 	go func(email, code string) {
-		htmlBody, err := infrastructure.ParseTemplate(code)
+		htmlBody, err := infrastructure.ParseTemplate(code, "templates/verify_email.html")
 		if err != nil {
 			log.Printf("Template error: %v", err)
 			return

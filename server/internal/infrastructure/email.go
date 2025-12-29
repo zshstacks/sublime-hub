@@ -8,7 +8,7 @@ import (
 	"net/smtp"
 )
 
-//go:embed templates/verify_email.html
+//go:embed templates/*
 var emailTemplates embed.FS
 
 func SendEmail(cfg AppConfig, to string, subject string, body string) error {
@@ -33,8 +33,8 @@ func SendEmail(cfg AppConfig, to string, subject string, body string) error {
 	return nil
 }
 
-func ParseTemplate(code string) (string, error) {
-	t, err := template.ParseFS(emailTemplates, "templates/verify_email.html")
+func ParseTemplate(code string, templateName string) (string, error) {
+	t, err := template.ParseFS(emailTemplates, templateName)
 	if err != nil {
 		return "", err
 	}
