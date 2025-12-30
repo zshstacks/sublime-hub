@@ -16,27 +16,23 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "@/redux/authSlice/asyncActions";
 import { clearAuthErrors } from "@/redux/authSlice/authSlice";
 import EmailOTP from "@/features/auth/ui/EmailOTP";
 import { useRouter } from "next/navigation";
-
-interface ValidateErrors {
-  password?: string;
-  "confirm-password"?: string;
-
-  [key: string]: string | undefined;
-}
+import { ValidateRegisterErrors } from "@/features/auth/types/types";
 
 function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [validateErrors, setValidateErrors] = useState<ValidateErrors>({});
+  const [validateErrors, setValidateErrors] = useState<ValidateRegisterErrors>(
+    {},
+  );
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
 

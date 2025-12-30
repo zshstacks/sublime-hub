@@ -76,3 +76,38 @@ export const resendOtp = createAsyncThunk(
     }
   },
 );
+
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (email: string, thunkAPI) => {
+    try {
+      const res = await api.post("/auth/reset", { email });
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to reset password");
+    }
+  },
+);
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (
+    {
+      email,
+      code,
+      new_password,
+    }: { email: string; code: string; new_password: string },
+    thunkAPI,
+  ) => {
+    try {
+      const res = await api.post("/auth/reset/new", {
+        email,
+        code,
+        new_password,
+      });
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to reset password");
+    }
+  },
+);

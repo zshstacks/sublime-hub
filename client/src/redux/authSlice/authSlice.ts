@@ -1,11 +1,13 @@
 import { AuthState } from "@/utility/types/reduxTypes";
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  forgotPassword,
   loadUser,
   loginUser,
   logoutUser,
   registerUser,
   resendOtp,
+  resetPassword,
   verifyEmail,
 } from "@/redux/authSlice/asyncActions";
 
@@ -111,6 +113,35 @@ const authSlice = createSlice({
         state.user = action.payload;
       })
       .addCase(resendOtp.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //forgot password
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //reset password
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
