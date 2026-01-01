@@ -8,11 +8,14 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 type AppConfig struct {
 	Environment string
 	Email       EmailConfig
+	OAuth       OAuthConfig
 	Server      ServerConfig
 	Database    DatabaseConfig
 	Cookie      CookieConfig
@@ -26,6 +29,11 @@ type EmailConfig struct {
 	Port     int
 	From     string
 	Username string
+}
+
+type OAuthConfig struct {
+	GoogleClientID     string
+	GoogleClientSecret string
 }
 
 type ServerConfig struct {
@@ -91,6 +99,11 @@ func LoadConfig() AppConfig {
 			Host:     getEnv("SMTP_HOST", ""),
 		},
 
+		OAuth: OAuthConfig{
+			GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
+			GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
+		},
+
 		Database: DatabaseConfig{
 			Host:            getEnv("DB_HOST", "localhost"),
 			Port:            getEnv("DB_PORT", "5432"),
@@ -154,4 +167,17 @@ func getCORSOrigins(isProd bool) []string {
 		return []string{"https://yourdomain.com"}
 	}
 	return []string{"http://localhost:3000", "http://localhost:8000"}
+}
+
+func (c *AppConfig) GetGoogleConfig() *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     c.OAuth.GoogleClientID,
+		ClientSecret: c.OAuth.GoogleClientSecret,
+		RedirectURL:  "http://localhost:8000/auth/oauth/google",
+		Endpoint:     google.Endpoint,
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
+	}
 }
