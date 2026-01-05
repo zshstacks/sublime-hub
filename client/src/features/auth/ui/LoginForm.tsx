@@ -124,6 +124,9 @@ function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
                   variant="outline"
                   type="button"
                   className="cursor-pointer"
+                  onClick={() =>
+                    (window.location.href = "http://localhost:8000/auth/google")
+                  }
                 >
                   Login with Google
                 </Button>

@@ -181,16 +181,9 @@ const ForgotPassword = () => {
               </FieldGroup>
               <Button
                 type="submit"
-                disabled={auth.isLoading}
                 className="w-full h-11 bg-[#171717] hover:shadow-xl text-white transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
-                {auth.isLoading ? (
-                  "Sending..."
-                ) : (
-                  <>
-                    <LuSendHorizontal /> Send Code
-                  </>
-                )}
+                <LuSendHorizontal /> Send Code
               </Button>
             </form>
           ) : (
