@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
@@ -296,28 +298,7 @@ func (ac *AuthController) Register(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-func (ac *AuthController) Login(c echo.Context) error {
-	var body struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	if err := c.Bind(&body); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
-	}
-
-	user, err := helpers.FindUserByEmail(ac.DB, body.Email)
-	if err != nil || user.ID == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid email or password")
-	}
-
-	if user.IsEmailConfirmed == false {
-		return echo.NewHTTPError(http.StatusForbidden, "Your email is not confirmed")
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid email or password")
-	}
+func (ac *AuthController) finalizeSession(c echo.Context, user models.User) error {
 
 	accessToken, err := helpers.SignJWT(ac.Cfg, user)
 	if err != nil {
@@ -345,6 +326,7 @@ func (ac *AuthController) Login(c echo.Context) error {
 		IssuedAt:  time.Now(),
 		ExpiresAt: time.Now().Add(time.Duration(ac.Cfg.JWT.RefreshTokenTTL) * 24 * time.Hour),
 	}
+
 	if err := ac.DB.Create(&refresh).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create refresh token")
 	}
@@ -359,7 +341,12 @@ func (ac *AuthController) Login(c echo.Context) error {
 		SameSite: ac.Cfg.Cookie.SameSite,
 	})
 
-	resp := struct {
+	// OAuth  Redirect
+	if strings.HasPrefix(c.Path(), "/auth/oauth") {
+		return c.Redirect(http.StatusSeeOther, "http://localhost:3000/hub")
+	}
+
+	return c.JSON(http.StatusOK, struct {
 		ID       uint   `json:"id"`
 		UniqueID string `json:"unique_id"`
 		Email    string `json:"email"`
@@ -369,9 +356,117 @@ func (ac *AuthController) Login(c echo.Context) error {
 		UniqueID: user.UniqueID,
 		Email:    user.Email,
 		Username: user.Username,
+	})
+}
+
+func (ac *AuthController) Login(c echo.Context) error {
+	var body struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
+	}
+
+	user, err := helpers.FindUserByEmail(ac.DB, body.Email)
+	if err != nil || user.ID == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid email or password")
+	}
+
+	if user.IsEmailConfirmed == false {
+		return echo.NewHTTPError(http.StatusForbidden, "Your email is not confirmed")
+	}
+
+	if user.OAuthProvider != models.AuthProviderLocal {
+		return echo.NewHTTPError(http.StatusBadRequest, "Please use social login for this account")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid email or password")
+	}
+
+	return ac.finalizeSession(c, user)
+}
+
+// GOOGLE OAUTH
+func (ac *AuthController) GoogleLogin(c echo.Context) error {
+	config := ac.Cfg.GetGoogleConfig()
+	state := helpers.GenerateRandomString(16)
+
+	c.SetCookie(&http.Cookie{
+		Name:     "oauth_state",
+		Value:    state,
+		Path:     "/",
+		MaxAge:   900,
+		HttpOnly: true,
+		Secure:   ac.Cfg.Cookie.Secure,
+		SameSite: ac.Cfg.Cookie.SameSite,
+	})
+
+	url := config.AuthCodeURL(state)
+	return c.Redirect(http.StatusTemporaryRedirect, url)
+}
+
+func (ac *AuthController) GoogleCallback(c echo.Context) error {
+	//check state  csrf stuff
+	stateFromGoogle := c.QueryParam("state")
+	stateCookie, err := c.Cookie("oauth_state")
+	if err != nil || stateFromGoogle != stateCookie.Value {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid OAuth state")
+	}
+
+	c.SetCookie(&http.Cookie{Name: "oauth_state", Value: "", Path: "/", MaxAge: -1})
+
+	code := c.QueryParam("code")
+	config := ac.Cfg.GetGoogleConfig()
+	tok, err := config.Exchange(context.Background(), code)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Exchange failed")
+	}
+
+	client := config.Client(context.Background(), tok)
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to get user info")
+	}
+	defer resp.Body.Close()
+
+	var gUser struct {
+		Sub   string `json:"sub"`
+		Email string `json:"email"`
+		Name  string `json:"name"`
+	}
+	json.NewDecoder(resp.Body).Decode(&gUser)
+
+	var user models.User
+	err = ac.DB.Where("o_auth_provider_id = ? AND o_auth_provider = ?", gUser.Sub, models.AuthProviderGoogle).First(&user).Error
+
+	if err != nil {
+		// check if email is 'local'
+		var existing models.User
+		if err := ac.DB.Where("email = ?", gUser.Email).First(&existing).Error; err == nil {
+			if existing.OAuthProvider == models.AuthProviderLocal {
+				return c.JSON(http.StatusConflict, map[string]string{
+					"error": "account_exists_with_password",
+				})
+			}
+		}
+
+		// new user
+		uID, _ := helpers.GenerateUniqueID(12)
+		user = models.User{
+			UniqueID:         uID,
+			Email:            gUser.Email,
+			Username:         gUser.Name,
+			OAuthProvider:    models.AuthProviderGoogle,
+			OAuthProviderID:  gUser.Sub,
+			IsEmailConfirmed: true,
+		}
+		ac.DB.Create(&user)
+	}
+
+	return ac.finalizeSession(c, user)
 }
 
 func (ac *AuthController) Refresh(c echo.Context) error {
