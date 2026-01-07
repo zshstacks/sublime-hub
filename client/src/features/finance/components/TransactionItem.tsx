@@ -9,7 +9,7 @@ interface TransactionProps {
   date: string;
   category: string;
   amount: number;
-  type: "income" | "expense";
+  type: string;
 }
 
 export const TransactionItem = ({
@@ -18,28 +18,44 @@ export const TransactionItem = ({
   category,
   amount,
   type,
-}: TransactionProps) => (
-  <div className="bg-[#14202D]/40 border border-white/5 rounded-xl p-4 flex items-center justify-between hover:bg-[#14202D]/60 transition-all cursor-pointer group">
-    <div className="flex items-center gap-4">
-      <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center ${type === "income" ? "bg-[#38CA6B]/10 text-[#38CA6B]" : "bg-indigo-500/10 text-indigo-400"}`}
-      >
-        {type === "income" ? <FiArrowDownLeft /> : <FiDollarSign />}
-      </div>
-      <div>
-        <div className="text-white font-medium text-sm">{name}</div>
-        <div className="text-xs text-white/20">
-          {date} • {category}
+}: TransactionProps) => {
+  const isIncome = type === "income";
+
+  return (
+    <div className="group flex items-center justify-between p-4 bg-white/[0.03] border border-white/[0.05] hover:border-[#38CA6B]/30 rounded-2xl transition-all duration-300 cursor-pointer shadow-sm">
+      <div className="flex items-center gap-4">
+        <div
+          className={`w-11 h-11 rounded-xl flex items-center justify-center border border-white/5 shadow-inner ${
+            isIncome
+              ? "bg-[#38CA6B]/10 text-[#38CA6B]"
+              : "bg-white/5 text-white/40"
+          }`}
+        >
+          {isIncome ? (
+            <FiArrowDownLeft size={20} />
+          ) : (
+            <FiDollarSign size={20} />
+          )}
+        </div>
+        <div>
+          <div className="text-sm font-bold text-white group-hover:text-[#38CA6B] transition-colors">
+            {name}
+          </div>
+          <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-1">
+            {date} <span className="mx-1 text-white/5">•</span> {category}
+          </div>
         </div>
       </div>
-    </div>
-    <div className="flex items-center gap-6">
-      <div
-        className={`font-bold text-sm ${type === "income" ? "text-[#38CA6B]" : "text-rose-500"}`}
-      >
-        {type === "income" ? "+" : "-"}${Math.abs(amount).toFixed(2)}
+      <div className="flex items-center gap-6">
+        <div
+          className={`text-sm font-mono font-bold ${isIncome ? "text-[#38CA6B]" : "text-rose-500"}`}
+        >
+          {isIncome ? "+" : "-"}${Math.abs(amount).toLocaleString()}
+        </div>
+        <button className="p-1 text-white/10 group-hover:text-white/40 transition-colors cursor-pointer">
+          <FiMoreHorizontal size={20} />
+        </button>
       </div>
-      <FiMoreHorizontal className="text-white/10 group-hover:text-white/40" />
     </div>
-  </div>
-);
+  );
+};

@@ -8,12 +8,14 @@ interface StatItemProps {
 export const StatItem = ({
   label,
   value,
-  color = "text-white",
+  color = "text-white/60",
   align = "text-center",
 }: StatItemProps) => (
   <div className={align}>
-    <div className={`text-lg font-bold ${color}`}>{value}</div>
-    <div className="text-[10px] text-white/20 uppercase font-bold tracking-tight mt-0.5">
+    <div className={`text-xl font-mono font-bold tracking-tighter ${color}`}>
+      {value}
+    </div>
+    <div className="text-[9px] text-white/20 uppercase font-black tracking-widest mt-1">
       {label}
     </div>
   </div>

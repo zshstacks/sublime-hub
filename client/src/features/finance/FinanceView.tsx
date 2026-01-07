@@ -5,13 +5,13 @@ import { FiPlus } from "react-icons/fi";
 import { BalanceCards } from "@/features/finance/components/BalanceCards";
 import { TransactionItem } from "@/features/finance/components/TransactionItem";
 import { SpendingCategories } from "@/features/finance/components/SpendingCategories";
-import AddTransactionModal from "@/features/finance/components/AddTransactionModal";
+import { AddTransactionModal } from "@/features/finance/components/AddTransactionModal";
 
 const FinanceView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="w-full min-h-full p-8 flex flex-col gap-8">
+    <div className="w-full min-h-full p-8 flex flex-col gap-8 animate-in fade-in duration-500 bg-[linear-gradient(180deg,#14202D_0%,#0b1a22_45%,#07141b_100%)]">
       {/* Header */}
       <div className="flex justify-between items-center w-full">
         <div>
@@ -24,21 +24,21 @@ const FinanceView = () => {
         </div>
 
         <button
-          onClick={() => setIsModalOpen((v) => !v)}
-          className="bg-[#4F46E5] hover:bg-[#4338CA] px-6 py-2.5 rounded-xl flex items-center gap-2 font-semibold text-white transition-all shadow-lg shadow-indigo-500/10 cursor-pointer"
+          onClick={() => setIsModalOpen(true)}
+          className="bg-[#38CA6B] hover:bg-[#2fb15d] px-6 py-2.5 rounded-xl flex items-center gap-2 font-bold text-white transition-all shadow-lg shadow-emerald-500/10 cursor-pointer active:scale-95"
         >
           <FiPlus size={20} /> Add Transaction
         </button>
         {isModalOpen && <AddTransactionModal setIsModalOpen={setIsModalOpen} />}
       </div>
 
-      {/* Balance, Income, Expenses */}
       <BalanceCards />
 
-      {/*  Transactions and Schedule */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full">
-        {/* Transaction History  */}
-        <div className="lg:col-span-8 flex flex-col gap-6">
+        <div className="lg:col-span-8 flex flex-col gap-3">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 px-2 mb-1">
+            Recent Transactions
+          </h3>
           <TransactionItem
             name="Apple Subscription"
             date="24 Dec 2025"
@@ -46,7 +46,6 @@ const FinanceView = () => {
             amount={14.99}
             type="expense"
           />
-
           <TransactionItem
             name="Stripe Payout"
             date="22 Dec 2025"
@@ -56,8 +55,7 @@ const FinanceView = () => {
           />
         </div>
 
-        {/* Categories & Spending  */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-4">
           <SpendingCategories />
         </div>
       </div>
