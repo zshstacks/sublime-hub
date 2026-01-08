@@ -20,7 +20,7 @@ export const BalanceCards = () => (
     </div>
 
     {/* Monthly Income */}
-    <div className="bg-white/5 border border-white/5 rounded-2xl p-6 hover:border-[#38CA6B]/20 transition-colors">
+    <div className="bg-white/5 border border-white/5 rounded-2xl p-6 hover:border-[#38CA6B]/20 transition-colors shadow-xl">
       <div className="flex items-center gap-3 mb-4 text-[#38CA6B]">
         <div className="p-2 bg-[#38CA6B]/10 rounded-lg">
           <FiArrowDownLeft size={20} />
@@ -35,7 +35,7 @@ export const BalanceCards = () => (
     </div>
 
     {/* Monthly Expenses */}
-    <div className="bg-white/5 border border-white/5 rounded-2xl p-6 hover:border-rose-500/20 transition-colors">
+    <div className="bg-white/5 border border-white/5 rounded-2xl p-6 hover:border-rose-500/20 transition-colors shadow-xl">
       <div className="flex items-center gap-3 mb-4 text-rose-500">
         <div className="p-2 bg-rose-500/10 rounded-lg">
           <FiArrowUpRight size={20} />

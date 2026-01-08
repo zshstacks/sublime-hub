@@ -7,6 +7,7 @@ import {
   FiTrendingDown,
   FiMoreHorizontal,
 } from "react-icons/fi";
+import Link from "next/link";
 
 interface Coin {
   rank: number;
@@ -31,6 +32,7 @@ const defaultCoins: Coin[] = [
     cap: "$1.2T",
     h24: "+2.4%",
   },
+
   {
     rank: 2,
     name: "Ethereum",

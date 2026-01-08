@@ -1,22 +1,23 @@
 "use client";
 
-import { RiBankLine } from "react-icons/ri";
+import { RiBankLine, RiSettings4Line, RiMenu4Line } from "react-icons/ri";
 import { MdRadar } from "react-icons/md";
 import { GoGraph } from "react-icons/go";
-import { IoIosMore } from "react-icons/io";
+import { IoIosLogOut } from "react-icons/io";
 import { FaCaretLeft } from "react-icons/fa6";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/redux/authSlice/asyncActions";
+import { FiCreditCard } from "react-icons/fi";
 
 const navItems = [
   { name: "Finance", href: "/hub/finance", icon: <RiBankLine size={20} /> },
   { name: "Uptime Monitor", href: "/hub/monitor", icon: <MdRadar size={20} /> },
-  { name: "Crypto Tracker", href: "/hub/crypto", icon: <GoGraph size={19} /> },
+  { name: "Crypto Tracker", href: "/hub/crypto", icon: <GoGraph size={20} /> },
 ];
 
 const Sidebar = () => {
@@ -41,133 +42,203 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`hidden flex-col md:flex shadow-md bg-[linear-gradient(180deg,#14202D_0%,#0b1a22_45%,#07141b_100%)] transition-all duration-300 ease-in-out border-r border-white/5 h-screen sticky top-0 ${
-        collapsed ? "w-20" : "w-64"
+      className={`hidden flex-col md:flex bg-[#07141b] transition-all duration-500 ease-in-out border-r border-white/5 h-screen sticky top-0 z-50 ${
+        collapsed ? "w-24" : "w-72"
       }`}
     >
-      {/* Logo Section */}
-      <div className="flex h-16 items-center px-6 font-bold text-2xl tracking-tight overflow-hidden">
-        <Link href="/hub" className="flex items-center gap-3">
-          <div className="min-w-[32px] h-8 bg-[#38CA6B] rounded-lg flex items-center justify-center text-white text-base">
+      {/* BRAND SECTION */}
+      <div className="flex h-[100px] items-center px-8">
+        <Link href="/hub" className="flex items-center gap-4 group">
+          <div className="min-w-[42px] h-[42px] bg-[#38CA6B] rounded-xl flex items-center justify-center text-[#07141b] text-xl font-black shadow-[0_0_25px_rgba(56,202,107,0.3)] group-hover:scale-105 transition-transform">
             S
           </div>
-          <span
-            className={`transition-all duration-300 ${
-              collapsed
-                ? "opacity-0 translate-x-10 w-0"
-                : "opacity-100 translate-x-0"
-            } whitespace-nowrap`}
-          >
-            SublimeHub
-          </span>
+          {!collapsed && (
+            <div className="flex flex-col animate-in fade-in slide-in-from-left-4">
+              <span className="text-xl tracking-tighter uppercase font-black text-white leading-none">
+                Sublime<span className="text-[#38CA6B]">Hub</span>
+              </span>
+              <span className="text-[10px] font-bold text-white/20 tracking-[0.4em] uppercase mt-1.5">
+                Workspace
+              </span>
+            </div>
+          )}
         </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-2 p-4 overflow-x-hidden">
-        {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href);
-
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              title={collapsed ? item.name : ""}
-              className={`group flex items-center h-11 px-3 rounded-xl transition-all duration-200 ${
-                isActive
-                  ? "bg-white/10 text-white"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <div
-                className={`flex-shrink-0 transition-colors duration-200 ${
-                  isActive ? "text-[#38CA6B]" : "group-hover:text-[#38CA6B]"
-                }`}
-              >
-                {item.icon}
-              </div>
-              <span
-                className={`ml-4 text-sm font-medium transition-all duration-300 ${
-                  collapsed
-                    ? "opacity-0 w-0 overflow-hidden"
-                    : "opacity-100 w-auto"
-                } whitespace-nowrap`}
-              >
-                {item.name}
+      {/* NAVIGATION */}
+      <div className="flex-1 px-4 mt-4">
+        <div className={`py-4 ${!collapsed ? "px-2" : ""}`}>
+          {!collapsed && (
+            <div className="flex items-center gap-2 mb-6 px-2">
+              <div className="w-1 h-1 bg-[#38CA6B] rounded-full" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">
+                Management
               </span>
-            </Link>
-          );
-        })}
-      </nav>
+            </div>
+          )}
 
-      {/* User Section */}
-      <div className="relative p-4 border-t border-white/5">
+          <nav className="space-y-2">
+            {navItems.map((item) => {
+              const isActive = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group relative flex items-center h-12 px-4 rounded-2xl transition-all duration-300 ${
+                    isActive ? "text-white" : "text-white/30 hover:text-white"
+                  }`}
+                >
+                  {isActive && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#38CA6B]/10 to-transparent rounded-2xl border-l-2 border-[#38CA6B]/40 animate-in fade-in duration-500" />
+                  )}
+
+                  <div
+                    className={`relative z-10 flex-shrink-0 transition-all duration-300 ${
+                      isActive
+                        ? "text-[#38CA6B] scale-110 drop-shadow-[0_0_8px_rgba(56,202,107,0.5)]"
+                        : "group-hover:text-[#38CA6B]"
+                    }`}
+                  >
+                    {item.icon}
+                  </div>
+                  {!collapsed && (
+                    <span className="relative z-10 ml-4 text-sm font-bold tracking-tight">
+                      {item.name}
+                    </span>
+                  )}
+                  {isActive && (
+                    <div className="absolute right-4 w-1.5 h-1.5 rounded-full bg-[#38CA6B] shadow-[0_0_10px_#38CA6B]" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
+
+      {/* USER SECTION */}
+      <div className="p-4 mb-4">
         <div
-          className={`flex items-center ${collapsed ? "flex-col gap-4" : "justify-between"}`}
+          className={`relative flex items-center gap-3 p-3 rounded-[24px] bg-white/[0.01] border border-white/5 transition-all duration-500 shadow-2xl ${
+            collapsed ? "flex-col py-6" : "justify-between"
+          }`}
         >
-          {/* User info & Avatar */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-9 w-9 flex-shrink-0 rounded-full bg-gradient-to-tr from-[#38CA6B] to-emerald-700 flex items-center justify-center text-sm font-bold text-white">
-              {initials}
+            <div className="relative flex-shrink-0">
+              <div className="h-10 w-10 rounded-xl bg-[#14202D] border border-white/10 flex items-center justify-center text-sm font-bold text-[#38CA6B] shadow-inner">
+                {initials}
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-[#07141b] rounded-full flex items-center justify-center border border-white/5">
+                <div className="w-2 h-2 bg-[#38CA6B] rounded-full animate-pulse" />
+              </div>
             </div>
 
             {!collapsed && (
-              <div className="min-w-0 transition-opacity duration-300">
-                <div className="text-sm font-semibold truncate text-white">
+              <div className="min-w-0">
+                <div className="text-sm font-bold truncate text-white tracking-tight">
                   {user?.username}
                 </div>
-                <div className="text-xs text-white/40">Free Plan</div>
+                <div className="text-[10px] font-black text-[#38CA6B]/40 uppercase tracking-widest mt-0.5">
+                  Free plan
+                </div>
               </div>
             )}
           </div>
 
-          {/* Action Buttons */}
           <div
-            className={`flex items-center ${collapsed ? "flex-col gap-2" : "gap-1"}`}
+            className={`flex items-center ${
+              collapsed ? "flex-col mt-4 gap-2" : "gap-1"
+            }`}
           >
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                isOpen
+                  ? "bg-[#38CA6B] text-[#07141b]"
+                  : "text-white/20 hover:text-white"
+              }`}
+            >
+              <RiMenu4Line size={20} />
+            </button>
             {!collapsed && (
               <button
-                onClick={() => setIsOpen((v) => !v)}
-                className="rounded-lg p-1.5 hover:bg-white/10 text-white/60 transition-colors cursor-pointer"
-                aria-label="Open user menu"
+                onClick={() => setCollapsed(true)}
+                className="p-2 text-white/5 hover:text-white transition-colors"
               >
-                <IoIosMore size={18} />
+                <FaCaretLeft size={16} />
               </button>
             )}
+          </div>
 
+          {collapsed && (
             <button
-              onClick={() => setCollapsed((v) => !v)}
-              className="rounded-lg p-1.5 hover:bg-white/10 text-[#38CA6B] transition-colors cursor-pointer"
-              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={() => setCollapsed(false)}
+              className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[#38CA6B] rounded-full flex items-center justify-center text-[#07141b] shadow-lg cursor-pointer hover:scale-110 transition-transform"
             >
-              <FaCaretLeft
-                size={18}
-                className={`transition-transform duration-300 ${collapsed ? "rotate-180" : ""}`}
-              />
+              <FaCaretLeft size={12} className="rotate-180" />
             </button>
-          </div>
-        </div>
+          )}
 
-        {/* Dropdown menu */}
-        {isOpen && !collapsed && (
-          <div className="absolute left-4 right-4 bottom-20 rounded-xl border border-white/10 bg-[#14202D] shadow-lg overflow-hidden z-50">
-            <ul className="flex flex-col py-1 text-sm text-white/80">
-              <li className="px-4 py-2.5 hover:bg-white/5 cursor-pointer transition-colors">
-                Profile
-              </li>
-              <li className="px-4 py-2.5 hover:bg-white/5 cursor-pointer transition-colors">
-                Settings
-              </li>
-              <div className="h-px bg-white/5 mx-2 my-1" />
-              <li
-                onClick={handleLogout}
-                className="px-4 py-2.5 hover:bg-white/5 cursor-pointer text-red-400 transition-colors font-medium"
-              >
-                Logout
-              </li>
-            </ul>
-          </div>
-        )}
+          {isOpen && (
+            <div className="absolute left-[calc(100%+20px)] bottom-0 w-72 animate-in fade-in zoom-in-95 slide-in-from-left-4 duration-300 z-[100]">
+              <div className="bg-[#0b1a22]/98 backdrop-blur-3xl border border-white/10 rounded-[32px] p-3 shadow-[40px_0_80px_rgba(0,0,0,0.7)] relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#38CA6B]/5 blur-3xl rounded-full" />
+
+                <div className="px-4 py-3 mb-2 flex justify-between items-center border-b border-white/5">
+                  <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
+                    Account Session
+                  </p>
+                </div>
+
+                <div className="space-y-1 relative">
+                  <button className="w-full flex items-start gap-4 px-4 py-3 rounded-2xl hover:bg-white/5 transition-all group text-left">
+                    <div className="mt-1">
+                      <FiCreditCard
+                        className="text-[#38CA6B] group-hover:scale-110 transition-transform flex-shrink-0"
+                        size={20}
+                      />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[13px] font-bold text-white group-hover:text-white transition-colors leading-none">
+                        Billing & Plan
+                      </span>
+                      <span className="text-[10px] font-medium text-white/40 mt-1 leading-tight">
+                        Manage subscription and payments
+                      </span>
+                    </div>
+                  </button>
+
+                  <Link href="/hub/settings" className="block">
+                    <button className="w-full flex items-start gap-4 px-4 py-3 rounded-2xl hover:bg-white/5 transition-all group text-left">
+                      <RiSettings4Line
+                        className="text-[#38CA6B] group-hover:scale-110 transition-transform flex-shrink-0"
+                        size={20}
+                      />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[13px] font-bold text-white group-hover:text-white transition-colors leading-none">
+                          Account details
+                        </span>
+                        <span className="text-[10px] font-medium text-white/40 mt-1 leading-tight">
+                          Check your account details
+                        </span>
+                      </div>
+                    </button>
+                  </Link>
+
+                  <div className="h-px bg-white/5 mx-3 my-2" />
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest"
+                  >
+                    <IoIosLogOut size={20} className="flex-shrink-0" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </aside>
   );

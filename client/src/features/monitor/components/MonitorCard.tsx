@@ -2,7 +2,7 @@ import { FiMoreVertical, FiExternalLink } from "react-icons/fi";
 
 export const MonitorCard = () => {
   return (
-    <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 flex items-center justify-between group hover:bg-white/[0.05] hover:border-[#38CA6B]/20 transition-all duration-300 cursor-pointer shadow-xl">
+    <div className="bg-white/[0.02] border border-white/[0.05] rounded-2xl p-5 flex items-center justify-between group hover:bg-white/[0.05] hover:border-[#38CA6B]/20 transition-all duration-300 cursor-pointer ">
       <div className="flex items-center gap-5">
         <div className="relative">
           <div className="w-3.5 h-3.5 rounded-full bg-[#38CA6B] shadow-[0_0_12px_#38CA6B]" />

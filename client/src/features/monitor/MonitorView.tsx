@@ -13,6 +13,7 @@ import { MonitorCard } from "./components/MonitorCard";
 import { StatsSidebar } from "./components/StatsSidebar";
 
 import { MonitorDetails } from "./components/MonitorDetails";
+import Link from "next/link";
 
 const MonitorView = () => {
   const [selectedMonitor, setSelectedMonitor] = useState<string | null>(null);
@@ -42,9 +43,12 @@ const MonitorView = () => {
             </div>
 
             <div className="flex items-center shadow-lg shadow-[#38CA6B]/10">
-              <button className="bg-[#38CA6B] hover:bg-[#2fb15d] px-6 py-2.5 rounded-l-xl flex items-center gap-2 font-bold text-white transition-all cursor-pointer active:scale-95">
-                <FiPlus size={18} /> New Monitor
-              </button>
+              <Link href="/hub/monitor/new">
+                <button className="bg-[#38CA6B] hover:bg-[#2fb15d] px-6 py-2.5 rounded-l-xl flex items-center gap-2 font-bold text-white transition-all cursor-pointer active:scale-95">
+                  <FiPlus size={18} /> New Monitor
+                </button>
+              </Link>
+
               <div className="w-[1px] h-11 bg-white/10" />
               <button className="bg-[#38CA6B] hover:bg-[#2fb15d] px-3 py-2.5 rounded-r-xl text-white transition-all cursor-pointer active:scale-95">
                 <FiChevronDown size={18} />
@@ -85,6 +89,15 @@ const MonitorView = () => {
               </div>
 
               <div className="space-y-3">
+                <div onClick={() => handleSelectMonitor("youtube.com")}>
+                  <MonitorCard />
+                </div>
+                <div onClick={() => handleSelectMonitor("youtube.com")}>
+                  <MonitorCard />
+                </div>
+                <div onClick={() => handleSelectMonitor("youtube.com")}>
+                  <MonitorCard />
+                </div>
                 <div onClick={() => handleSelectMonitor("youtube.com")}>
                   <MonitorCard />
                 </div>

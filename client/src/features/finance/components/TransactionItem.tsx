@@ -22,7 +22,7 @@ export const TransactionItem = ({
   const isIncome = type === "income";
 
   return (
-    <div className="group flex items-center justify-between p-4 bg-white/[0.03] border border-white/[0.05] hover:border-[#38CA6B]/30 rounded-2xl transition-all duration-300 cursor-pointer shadow-sm">
+    <div className="group flex items-center justify-between p-4 bg-white/[0.03] border border-white/[0.05] hover:border-[#38CA6B]/30 rounded-2xl transition-all duration-300 cursor-pointer ">
       <div className="flex items-center gap-4">
         <div
           className={`w-11 h-11 rounded-xl flex items-center justify-center border border-white/5 shadow-inner ${
