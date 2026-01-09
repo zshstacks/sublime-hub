@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/zshstacks/markdown-zsh/internal/infrastructure"
+	"github.com/zshstacks/markdown-zsh/modules/monitor"
 	"github.com/zshstacks/markdown-zsh/modules/users"
 	"gorm.io/gorm"
 )
@@ -45,7 +46,6 @@ func registerModules(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 
 	users.RegisterRoutes(e, db, cfg)
 
-	// Future modules:
-	// finance.RegisterRoutes(e, db, cfg)
-	// monitoring.RegisterRoutes(e, db, cfg)
+	monitor.RegisterRoutes(e, db, cfg)
+
 }

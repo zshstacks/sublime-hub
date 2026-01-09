@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	modelsMonitor "github.com/zshstacks/markdown-zsh/modules/monitor/models"
 	"github.com/zshstacks/markdown-zsh/modules/users/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,6 +33,8 @@ func SyncDatabase(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&models.User{},
 		&models.RefreshToken{},
+		&modelsMonitor.Monitor{},
+		&modelsMonitor.Heartbeat{},
 	)
 
 	if err != nil {
