@@ -30,8 +30,6 @@ func (mw *MonitorWorker) Start() {
 func (mw *MonitorWorker) proccesPendingMonitors() {
 	var pendingMonitors []models2.Monitor
 
-	//now := time.Now()
-
 	err := mw.DB.Where(
 		"is_active = ? AND (last_checked_at IS NULL OR last_checked_at + (interval * interval '1 second') < NOW())",
 		true,

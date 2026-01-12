@@ -20,5 +20,8 @@ func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 	private.Use(middleware.RequireAuth(db, cfg))
 	{
 		private.POST("", mc.Create)
+		private.GET("", mc.List)
+		private.DELETE("/:id", mc.Delete)
+		private.PATCH("/:id", mc.Update)
 	}
 }

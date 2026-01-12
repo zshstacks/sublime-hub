@@ -21,4 +21,6 @@ type Monitor struct {
 	LastCheckedAt time.Time `json:"last_checked_at"`
 
 	User models.User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;" json:"user"`
+
+	Heartbeats []Heartbeat `json:"heartbeats" gorm:"foreignKey:MonitorID;constraint:OnDelete:CASCADE;"`
 }
