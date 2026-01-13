@@ -1,6 +1,8 @@
 package monitor
 
 import (
+	"context"
+
 	"github.com/labstack/echo/v4"
 	"github.com/zshstacks/markdown-zsh/internal/infrastructure"
 	"github.com/zshstacks/markdown-zsh/internal/middleware"
@@ -12,7 +14,7 @@ import (
 func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 
 	monitorWorker := worker.NewMonitorWorker(db)
-	go monitorWorker.Start()
+	go monitorWorker.Start(context.Background())
 
 	mc := controllers.NewMonitorController(db, cfg)
 
@@ -23,5 +25,7 @@ func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 		private.GET("", mc.List)
 		private.DELETE("/:id", mc.Delete)
 		private.PATCH("/:id", mc.Update)
+		private.GET("/:id/stats", mc.GetStats)
+		private.GET("/:id/chart", mc.GetChartData)
 	}
 }
