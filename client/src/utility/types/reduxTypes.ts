@@ -11,3 +11,11 @@ export interface AuthState {
   error: string | null;
   isLoading: boolean;
 }
+
+export interface MonitorState {
+  items: any[];
+  chartData: any[];
+  stats: any | null;
+  loading: boolean;
+  error: string | null;
+}
