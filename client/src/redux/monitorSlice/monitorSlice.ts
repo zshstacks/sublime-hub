@@ -80,7 +80,7 @@ const monitorSlice = createSlice({
       .addCase(updateMonitor.fulfilled, (state, action: PayloadAction<any>) => {
         state.loading = false;
         const index = state.items.findIndex(
-          (item) => item.id === action.payload.id,
+          (item) => item.ID === action.payload.ID,
         );
         if (index !== -1) {
           state.items[index] = action.payload;
@@ -94,7 +94,7 @@ const monitorSlice = createSlice({
       .addCase(deleteMonitor.fulfilled, (state, action) => {
         state.loading = false;
         const deletedId = action.meta.arg;
-        state.items = state.items.filter((item) => item.id !== deletedId);
+        state.items = state.items.filter((item) => item.ID !== deletedId);
       })
       .addCase(deleteMonitor.rejected, (state, action) => {
         state.loading = false;

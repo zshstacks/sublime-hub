@@ -37,7 +37,7 @@ export const fetchMonitors = createAsyncThunk(
 
 export const fetchMonitorStats = createAsyncThunk(
   "monitor/fetchMonitorStats",
-  async ({ id, period }: { id: string; period: string }, thunkAPI) => {
+  async ({ id, period }: { id: number; period: string }, thunkAPI) => {
     try {
       const res = await api.get(`/api/monitors/${id}/stats?period=${period}`);
       return res.data;
@@ -49,10 +49,10 @@ export const fetchMonitorStats = createAsyncThunk(
 
 export const deleteMonitor = createAsyncThunk(
   "monitor/deleteMonitor",
-  async (id: string, thunkAPI) => {
+  async (id: number, thunkAPI) => {
     try {
-      const res = await api.delete(`/api/monitors/${id}`);
-      return res.data;
+      await api.delete(`/api/monitors/${id}`);
+      return id;
     } catch (error) {
       return thunkAPI.rejectWithValue("Failed to delete monitor");
     }
@@ -61,7 +61,7 @@ export const deleteMonitor = createAsyncThunk(
 
 export const chartMonitorStats = createAsyncThunk(
   "monitor/chartMonitorStats",
-  async (id: string, thunkAPI) => {
+  async (id: number, thunkAPI) => {
     try {
       const res = await api.get(`/api/monitors/${id}/chart`);
       return res.data;
@@ -78,7 +78,7 @@ export const updateMonitor = createAsyncThunk(
       id,
       data,
     }: {
-      id: string;
+      id: number;
       data: {
         name: string;
         url: string;

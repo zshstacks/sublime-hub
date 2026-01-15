@@ -1,60 +1,121 @@
-import React from "react";
-import { FiActivity } from "react-icons/fi";
+"use client";
 
-export const LatencyCharts = () => {
-  const data = [
-    120, 135, 128, 150, 210, 140, 130, 125, 160, 145, 190, 130, 120, 115, 140,
-    155, 130, 145, 120, 110,
-  ];
-  const maxVal = Math.max(...data);
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { AppDispatch, RootState } from "@/redux/store";
+import { chartMonitorStats } from "@/redux/monitorSlice/asyncActions";
+import { format } from "date-fns";
+import { useMemo } from "react";
+import { LatencyChartProps } from "@/features/monitor/types";
+
+export const LatencyCharts = ({ monitorId }: LatencyChartProps) => {
+  const dispatch: AppDispatch = useDispatch();
+  const { chartData, loading } = useSelector(
+    (state: RootState) => state.monitor,
+  );
+
+  useEffect(() => {
+    if (monitorId) {
+      dispatch(chartMonitorStats(monitorId));
+    }
+  }, [dispatch, monitorId]);
+
+  // Formatējam datus grafikam
+  const formattedData = useMemo(() => {
+    return chartData.map((point) => ({
+      ...point,
+
+      displayTime: format(new Date(point.timestamp), "HH:mm"),
+
+      latency: Math.round(point.latency * 100) / 100,
+    }));
+  }, [chartData]);
+
+  if (loading && chartData.length === 0) {
+    return (
+      <div className="h-[350px] w-full bg-white/[0.03] rounded-3xl border border-white/5 flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[#38CA6B] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-6 shadow-2xl backdrop-blur-sm">
-      <div className="flex justify-between items-center mb-8">
+    <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-8 space-y-6">
+      <div className="flex justify-between items-end">
         <div>
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 flex items-center gap-2">
-            <FiActivity className="text-[#38CA6B]" /> Response Time
-          </h3>
-          <div className="text-2xl font-mono font-bold text-white mt-1">
-            124<span className="text-xs text-[#38CA6B] ml-1 uppercase">ms</span>
-          </div>
+          <h3 className="text-white font-bold text-lg">Response Latency</h3>
+          <p className="text-white/40 text-xs">Last 24 hours performance</p>
         </div>
-        <div className="flex flex-col items-end">
-          <span className="text-[10px] font-bold text-white/20 uppercase">
-            Avg. 24h
+        <div className="text-right">
+          <span className="text-[10px] font-bold text-[#38CA6B] uppercase tracking-widest block mb-1">
+            Current Avg
           </span>
-          <span className="text-sm font-mono font-bold text-white/60">
-            142ms
+          <span className="text-2xl font-mono font-bold text-white">
+            {formattedData.length > 0
+              ? formattedData[formattedData.length - 1].latency
+              : 0}
+            ms
           </span>
         </div>
       </div>
 
-      {/* Chart Visualizer */}
-      <div className="h-32 flex items-end gap-1.5 px-2">
-        {data.map((ms, i) => {
-          const heightPerc = (ms / maxVal) * 100;
-          return (
-            <div
-              key={i}
-              className="flex-1 bg-white/5 hover:bg-[#38CA6B]/30 transition-all rounded-t-sm relative group cursor-crosshair"
-              style={{ height: `${heightPerc}%` }}
-            >
-              {/* Tooltip */}
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#0B121A] border border-white/10 px-2 py-1 rounded text-[10px] font-mono font-bold text-[#38CA6B] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20 shadow-xl">
-                {ms}ms
-              </div>
-              {/* Pulse effect for the latest data point */}
-              {i === data.length - 1 && (
-                <div className="absolute -top-1 left-0 w-full h-1 bg-[#38CA6B] shadow-[0_0_10px_#38CA6B]" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="flex justify-between mt-4 text-[9px] font-bold uppercase tracking-widest text-white/10">
-        <span>30 minutes ago</span>
-        <span>Just now</span>
+      <div className="h-[250px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={formattedData}>
+            <defs>
+              <linearGradient id="latencyGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#38CA6B" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#38CA6B" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="rgba(255,255,255,0.05)"
+            />
+            <XAxis
+              dataKey="displayTime"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+              minTickGap={30}
+            />
+            <YAxis hide={true} domain={[0, "auto"]} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#14202D",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "12px",
+                fontSize: "12px",
+                color: "#fff",
+              }}
+              itemStyle={{ color: "#38CA6B" }}
+              labelStyle={{
+                color: "rgba(255,255,255,0.5)",
+                marginBottom: "4px",
+              }}
+            />
+            <Area
+              type="monotone"
+              dataKey="latency"
+              stroke="#38CA6B"
+              strokeWidth={3}
+              fillOpacity={1}
+              fill="url(#latencyGradient)"
+              dot={formattedData.length < 10}
+              activeDot={{ r: 6, strokeWidth: 0 }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
