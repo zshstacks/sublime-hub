@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/zshstacks/markdown-zsh/internal/infrastructure"
 	"github.com/zshstacks/markdown-zsh/modules/monitor"
+	"github.com/zshstacks/markdown-zsh/modules/monitor/controllers"
 	"github.com/zshstacks/markdown-zsh/modules/users"
 	"gorm.io/gorm"
 )
@@ -23,6 +25,8 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Secure())
+
+	e.Validator = &controllers.CustomValidator{Validator: validator.New()}
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     cfg.CORS.AllowedOrigins,

@@ -13,11 +13,11 @@ import (
 )
 
 type CustomValidator struct {
-	validator *validator.Validate
+	Validator *validator.Validate
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
-	return cv.validator.Struct(i)
+	return cv.Validator.Struct(i)
 }
 
 type MonitorController struct {
@@ -189,14 +189,14 @@ func (mc *MonitorController) GetChartData(c echo.Context) error {
 
 	var points []monitorModels.ChartPoint
 	query := `
-		SELECT 
-			date_trunc('hour', created_at) as timestamp,
-			AVG(latency) as latency,
-			(COUNT(CASE WHEN status_code >= 200 AND status_code < 300 THEN 1 END) * 100.0 / COUNT(*)) as uptime
-		FROM heartbeats
-		WHERE monitor_id = ? AND created_at > NOW() - INTERVAL '24 hours'
-		GROUP BY timestamp
-		ORDER BY timestamp ASC`
+   SELECT 
+      date_trunc('minute', created_at) as timestamp,
+      AVG(latency) as latency,
+      (COUNT(CASE WHEN status_code >= 200 AND status_code < 300 THEN 1 END) * 100.0 / COUNT(*)) as uptime
+   FROM heartbeats
+   WHERE monitor_id = ? AND created_at > NOW() - INTERVAL '24 hours'
+   GROUP BY timestamp
+   ORDER BY timestamp ASC`
 
 	if err := mc.DB.Raw(query, id).Scan(&points).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch chart data")
