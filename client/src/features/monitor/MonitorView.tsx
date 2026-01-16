@@ -99,7 +99,7 @@ const MonitorView = () => {
               </div>
 
               {/* Monitor List */}
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-[680px] overflow-y-auto pr-2 custom-scrollbar ">
                 {loading && items.length === 0 ? (
                   <div className="flex flex-col items-center py-20 text-white/20 gap-4">
                     <div className="w-8 h-8 border-2 border-[#38CA6B] border-t-transparent rounded-full animate-spin" />

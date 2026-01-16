@@ -111,3 +111,15 @@ export const resetPassword = createAsyncThunk(
     }
   },
 );
+
+export const deleteUser = createAsyncThunk(
+  "auth/deleteUser",
+  async (_, thunkAPI) => {
+    try {
+      const res = await api.delete("/user/current/delete");
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to delete user");
+    }
+  },
+);

@@ -71,30 +71,30 @@ export const chartMonitorStats = createAsyncThunk(
   },
 );
 
-export const updateMonitor = createAsyncThunk(
-  "monitor/updateMonitor",
-  async (
-    {
-      id,
-      data,
-    }: {
-      id: number;
-      data: {
-        name: string;
-        url: string;
-        timeout: number;
-        interval: number;
-        is_active: boolean;
-        notify_email: boolean;
-      };
-    },
-    thunkAPI,
-  ) => {
-    try {
-      const res = await api.patch(`/api/monitors/${id}`, data);
-      return res.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue("Failed to update monitor ");
-    }
-  },
-);
+// export const updateMonitor = createAsyncThunk(
+//   "monitor/updateMonitor",
+//   async (
+//     {
+//       id,
+//       data,
+//     }: {
+//       id: number;
+//       data: {
+//         name: string;
+//         url: string;
+//         timeout: number;
+//         interval: number;
+//         is_active: boolean;
+//         notify_email: boolean;
+//       };
+//     },
+//     thunkAPI,
+//   ) => {
+//     try {
+//       const res = await api.patch(`/api/monitors/${id}`, data);
+//       return res.data;
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue("Failed to update monitor ");
+//     }
+//   },
+// );

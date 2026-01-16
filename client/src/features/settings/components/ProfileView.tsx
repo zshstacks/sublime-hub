@@ -3,8 +3,32 @@
 import React from "react";
 import { RiKey2Line, RiShieldCheckLine } from "react-icons/ri";
 import { FiAlertCircle, FiTrash2 } from "react-icons/fi";
+import { AppDispatch } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { deleteUser } from "@/redux/authSlice/asyncActions";
+import { toast } from "sonner";
 
 export const ProfileView = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const router = useRouter();
+
+  const deleteAccount = async () => {
+    const confirmed = window.confirm(
+      "⚠️ Are you sure you want to delete your account? This action cannot be undone.",
+    );
+
+    if (!confirmed) return;
+
+    const result = await dispatch(deleteUser());
+
+    if (result.type === "auth/deleteUser/fulfilled") {
+      router.replace("/login");
+    } else {
+      toast.error("Failed to delete your account");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-500">
       {/* Main Profile Card */}
@@ -98,14 +122,17 @@ export const ProfileView = () => {
           </div>
           <div>
             <h2 className="text-sm font-black text-white uppercase tracking-widest">
-              Delete Workspace
+              Delete Account
             </h2>
             <p className="text-xs font-medium text-white/20 mt-1">
               This will wipe all module data and API connections.
             </p>
           </div>
         </div>
-        <button className="p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all">
+        <button
+          onClick={deleteAccount}
+          className="p-4 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-2xl transition-all cursor-pointer"
+        >
           <FiTrash2 size={20} />
         </button>
       </section>

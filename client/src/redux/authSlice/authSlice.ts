@@ -1,6 +1,7 @@
 import { AuthState } from "@/utility/types/reduxTypes";
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  deleteUser,
   forgotPassword,
   loadUser,
   loginUser,
@@ -136,12 +137,27 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(resetPassword.fulfilled, (state, action) => {
+      .addCase(resetPassword.fulfilled, (state) => {
         state.isLoading = false;
         state.user = null;
         state.error = null;
       })
       .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //delete user
+      .addCase(deleteUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

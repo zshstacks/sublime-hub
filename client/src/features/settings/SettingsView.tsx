@@ -29,25 +29,6 @@ const SettingsView = () => {
             Settings
           </h1>
         </div>
-
-        {/* Quick Stats pill */}
-        <div className="hidden md:flex bg-white/5 border border-white/5 rounded-2xl p-1.5 px-4 items-center gap-6">
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-white/20 uppercase">
-              Last Login
-            </span>
-            <span className="text-xs font-mono text-[#38CA6B]">127.0.0.1</span>
-          </div>
-          <div className="w-px h-6 bg-white/5" />
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-white/20 uppercase">
-              Status
-            </span>
-            <span className="text-xs font-bold text-white uppercase tracking-tighter">
-              Verified
-            </span>
-          </div>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
