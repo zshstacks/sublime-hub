@@ -525,11 +525,31 @@ func (ac *AuthController) DeleteUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve user")
 	}
 
-	if err := ac.DB.Delete(&userModel).Error; err != nil {
+	// Start a transaction to ensure all related data is deleted
+	tx := ac.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Unscoped().Where("user_id = ?", userModel.ID).Delete(&models.RefreshToken{}).Error; err != nil {
+		tx.Rollback()
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user tokens")
+	}
+
+	// Hard delete
+	if err := tx.Unscoped().Delete(&userModel).Error; err != nil {
+		tx.Rollback()
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete user")
 	}
 
-	//w/o c.cookie, bcs of cascade in user models User User
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to complete deletion")
+	}
+
+	// Clear cookies
 	c.SetCookie(&http.Cookie{
 		Name:     "refresh_token",
 		Value:    "",
@@ -549,7 +569,7 @@ func (ac *AuthController) DeleteUser(c echo.Context) error {
 		SameSite: ac.Cfg.Cookie.SameSite,
 	})
 
-	return c.JSON(http.StatusOK, map[string]string{"message": "User deleted"})
+	return c.JSON(http.StatusOK, map[string]string{"message": "User permanently deleted"})
 }
 
 func (ac *AuthController) GetCurrentUser(c echo.Context) error {
