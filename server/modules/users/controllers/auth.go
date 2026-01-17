@@ -580,3 +580,41 @@ func (ac *AuthController) GetCurrentUser(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, user)
 }
+
+func (ac *AuthController) ChangeUsername(c echo.Context) error {
+	user, ok := c.Get("user").(models.User)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to retrieve user from context")
+	}
+
+	var body struct {
+		Username string `json:"username"`
+	}
+
+	if err := c.Bind(&body); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to read body")
+	}
+
+	if body.Username == "" {
+		return echo.NewHTTPError(http.StatusBadRequest, "Username cannot be empty")
+	}
+
+	if len(body.Username) < 3 || len(body.Username) > 30 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Username must be between 3 and 30 characters")
+	}
+
+	var existingUser models.User
+	if err := ac.DB.Where("username = ? AND id != ?", body.Username, user.ID).First(&existingUser).Error; err == nil {
+		return echo.NewHTTPError(http.StatusConflict, "Username already taken")
+	}
+
+	user.Username = body.Username
+	if err := ac.DB.Save(&user).Error; err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update username")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":  "Username updated successfully",
+		"username": user.Username,
+	})
+}
