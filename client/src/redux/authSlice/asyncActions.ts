@@ -123,3 +123,15 @@ export const deleteUser = createAsyncThunk(
     }
   },
 );
+
+export const changeUsername = createAsyncThunk(
+  "auth/changeUsername",
+  async (username: string, thunkAPI) => {
+    try {
+      const res = await api.put("/user/current/change-username", { username });
+      return res.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue("Failed to update username");
+    }
+  },
+);

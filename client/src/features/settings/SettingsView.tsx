@@ -57,7 +57,17 @@ const SettingsView = () => {
         {/* Content Section */}
         <div className="lg:col-span-9">
           {activeTab === "account" && <ProfileView />}
-          {activeTab === "billing" && <BillingView />}
+          {activeTab === "billing" && (
+            <div className="bg-white/5 border border-white/5 rounded-[2rem] p-12 text-center">
+              <RiLockPasswordLine
+                className="mx-auto text-white/10 mb-4"
+                size={48}
+              />
+              <p className="text-white/40 font-bold uppercase tracking-widest text-xs">
+                Billing Module under refactor
+              </p>
+            </div>
+          )}
 
           {/* placeholder  */}
           {activeTab === "security" && (

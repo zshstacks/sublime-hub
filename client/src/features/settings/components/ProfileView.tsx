@@ -1,17 +1,63 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { RiKey2Line, RiShieldCheckLine } from "react-icons/ri";
-import { FiAlertCircle, FiTrash2 } from "react-icons/fi";
-import { AppDispatch } from "@/redux/store";
-import { useDispatch } from "react-redux";
+import { FiAlertCircle, FiTrash2, FiCheck, FiX } from "react-icons/fi";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { deleteUser } from "@/redux/authSlice/asyncActions";
+import {
+  deleteUser,
+  changeUsername,
+  loadUser,
+} from "@/redux/authSlice/asyncActions";
 import { toast } from "sonner";
+import { AppDispatch, RootState } from "@/redux/store";
 
 export const ProfileView = () => {
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const [username, setUsername] = useState(user?.username || "");
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleUsernameChange = async () => {
+    if (!username.trim()) {
+      toast.error("Username cannot be empty");
+      return;
+    }
+
+    if (username === user?.username) {
+      setIsEditingUsername(false);
+      return;
+    }
+
+    if (username.length < 3 || username.length > 30) {
+      toast.error("Username must be between 3 and 30 characters");
+      return;
+    }
+
+    setIsSaving(true);
+    const result = await dispatch(changeUsername(username));
+
+    if (result.type === "auth/changeUsername/fulfilled") {
+      toast.success("Username updated successfully");
+      setIsEditingUsername(false);
+      // Reload user data to get the updated username
+      dispatch(loadUser());
+    } else {
+      toast.error("Failed to update username");
+      // Reset to original username
+      setUsername(user?.username || "");
+    }
+    setIsSaving(false);
+  };
+
+  const handleCancelEdit = () => {
+    setUsername(user?.username || "");
+    setIsEditingUsername(false);
+  };
 
   const deleteAccount = async () => {
     const confirmed = window.confirm(
@@ -23,6 +69,7 @@ export const ProfileView = () => {
     const result = await dispatch(deleteUser());
 
     if (result.type === "auth/deleteUser/fulfilled") {
+      toast.success("Account deleted successfully");
       router.replace("/login");
     } else {
       toast.error("Failed to delete your account");
@@ -41,16 +88,13 @@ export const ProfileView = () => {
             <div className="relative">
               <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-[#38CA6B]/20 to-transparent p-1">
                 <div className="w-full h-full rounded-[22px] bg-[#07141b] flex items-center justify-center text-4xl font-black text-[#38CA6B] border border-white/10">
-                  Z
+                  {user?.username?.charAt(0).toUpperCase() || "U"}
                 </div>
               </div>
             </div>
             <div className="text-center">
               <p className="text-xs font-black text-white uppercase tracking-widest">
-                zshstacks
-              </p>
-              <p className="text-[10px] text-white/20 font-bold uppercase mt-1">
-                Member since 2024
+                {user?.username || "User"}
               </p>
             </div>
           </div>
@@ -62,11 +106,34 @@ export const ProfileView = () => {
                 <label className="text-[10px] font-bold uppercase tracking-widest text-white/20 ml-1">
                   Username
                 </label>
-                <input
-                  type="text"
-                  defaultValue="zshstacks"
-                  className="w-full bg-white/5 border border-white/5 rounded-xl py-3.5 px-4 text-sm text-white focus:outline-none focus:border-[#38CA6B]/30 transition-all font-medium"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={username || user?.username || ""}
+                    onChange={(e) => setUsername(e.target.value)}
+                    onFocus={() => setIsEditingUsername(true)}
+                    disabled={isSaving}
+                    className="w-full bg-white/5 border border-white/5 rounded-xl py-3.5 px-4 pr-20 text-sm text-white focus:outline-none focus:border-[#38CA6B]/30 transition-all font-medium disabled:opacity-50"
+                  />
+                  {isEditingUsername && (
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                      <button
+                        onClick={handleUsernameChange}
+                        disabled={isSaving}
+                        className="p-2 bg-[#38CA6B]/20 hover:bg-[#38CA6B]/30 text-[#38CA6B] rounded-lg transition-all disabled:opacity-50"
+                      >
+                        <FiCheck size={16} />
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        disabled={isSaving}
+                        className="p-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-500 rounded-lg transition-all disabled:opacity-50"
+                      >
+                        <FiX size={16} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-white/20 ml-1">
@@ -74,8 +141,9 @@ export const ProfileView = () => {
                 </label>
                 <input
                   type="email"
-                  defaultValue="admin@sublimehub.io"
-                  className="w-full bg-white/5 border border-white/5 rounded-xl py-3.5 px-4 text-sm text-white focus:outline-none focus:border-[#38CA6B]/30 transition-all font-medium"
+                  value={user?.email || ""}
+                  readOnly
+                  className="w-full bg-white/5 border border-white/5 rounded-xl py-3.5 px-4 text-sm text-white/50 focus:outline-none font-medium cursor-not-allowed"
                 />
               </div>
             </div>

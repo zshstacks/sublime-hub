@@ -8,7 +8,7 @@ import { FaCaretLeft } from "react-icons/fa6";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "@/redux/authSlice/asyncActions";
@@ -24,10 +24,30 @@ const Sidebar = () => {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch: AppDispatch = useDispatch();
   const router = useRouter();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleLogout = async () => {
     try {
@@ -119,6 +139,7 @@ const Sidebar = () => {
       {/* USER SECTION */}
       <div className="p-4 mb-4">
         <div
+          ref={dropdownRef}
           className={`relative flex items-center gap-3 p-3 rounded-[24px] bg-white/[0.01] border border-white/5 transition-all duration-500 shadow-2xl ${
             collapsed ? "flex-col py-6" : "justify-between"
           }`}
@@ -209,7 +230,7 @@ const Sidebar = () => {
                   </button>
 
                   <Link href="/hub/settings" className="block">
-                    <button className="w-full flex items-start gap-4 px-4 py-3 rounded-2xl hover:bg-white/5 transition-all group text-left">
+                    <button className="w-full flex items-start gap-4 px-4 py-3 rounded-2xl hover:bg-white/5 transition-all group text-left cursor-pointer">
                       <RiSettings4Line
                         className="text-[#38CA6B] group-hover:scale-110 transition-transform flex-shrink-0"
                         size={20}
@@ -229,7 +250,7 @@ const Sidebar = () => {
 
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest"
+                    className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white transition-all text-[11px] font-black uppercase tracking-widest cursor-pointer"
                   >
                     <IoIosLogOut size={20} className="flex-shrink-0" />
                     Logout

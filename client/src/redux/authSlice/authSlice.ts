@@ -1,6 +1,7 @@
 import { AuthState } from "@/utility/types/reduxTypes";
 import { createSlice } from "@reduxjs/toolkit";
 import {
+  changeUsername,
   deleteUser,
   forgotPassword,
   loadUser,
@@ -143,6 +144,23 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+
+      //change username
+      .addCase(changeUsername.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(changeUsername.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user) {
+          state.user.username = action.payload.username;
+        }
+        state.error = null;
+      })
+      .addCase(changeUsername.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })
