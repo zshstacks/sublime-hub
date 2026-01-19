@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	modelsCrypto "github.com/zshstacks/markdown-zsh/modules/crypto/models"
 	modelsMonitor "github.com/zshstacks/markdown-zsh/modules/monitor/models"
 	"github.com/zshstacks/markdown-zsh/modules/users/models"
 	"gorm.io/driver/postgres"
@@ -35,6 +36,9 @@ func SyncDatabase(db *gorm.DB) {
 		&models.RefreshToken{},
 		&modelsMonitor.Monitor{},
 		&modelsMonitor.Heartbeat{},
+		&modelsCrypto.Coin{},
+		&modelsCrypto.Category{},
+		&modelsCrypto.MarketStats{},
 	)
 
 	if err != nil {

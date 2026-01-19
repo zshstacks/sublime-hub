@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/zshstacks/markdown-zsh/modules/crypto/models"
 	"gorm.io/gorm"
 )
 
@@ -24,4 +25,6 @@ type User struct {
 	ConfirmationCodeExpiresAt  time.Time
 	PasswordResetCode          string `gorm:"size:64" json:"-"`
 	PasswordResetCodeExpiresAt time.Time
+
+	Favorites []models.Coin `gorm:"many2many:user_favorites;" json:"favorites"`
 }
