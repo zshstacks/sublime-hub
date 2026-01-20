@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/zshstacks/markdown-zsh/internal/infrastructure"
+	"github.com/zshstacks/markdown-zsh/modules/crypto"
 	"github.com/zshstacks/markdown-zsh/modules/monitor"
 	"github.com/zshstacks/markdown-zsh/modules/monitor/controllers"
 	"github.com/zshstacks/markdown-zsh/modules/users"
@@ -47,9 +48,9 @@ func main() {
 }
 
 func registerModules(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
-
 	users.RegisterRoutes(e, db, cfg)
 
 	monitor.RegisterRoutes(e, db, cfg)
 
+	crypto.RegisterRoutes(e, db, cfg)
 }
