@@ -19,3 +19,9 @@ export interface MonitorState {
   loading: boolean;
   error: string | null;
 }
+
+export interface CryptoState {
+  favorites: any[];
+  loading: boolean;
+  error: string | null;
+}
