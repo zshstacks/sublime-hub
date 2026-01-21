@@ -9,7 +9,7 @@ import (
 	"github.com/zshstacks/markdown-zsh/internal/infrastructure"
 	"github.com/zshstacks/markdown-zsh/internal/middleware"
 	"github.com/zshstacks/markdown-zsh/modules/crypto/controllers"
-	"github.com/zshstacks/markdown-zsh/modules/crypto/worker" // pārliecinies par ceļu
+	"github.com/zshstacks/markdown-zsh/modules/crypto/worker"
 	"gorm.io/gorm"
 )
 
@@ -44,5 +44,6 @@ func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 	private.Use(middleware.RequireAuth(db, cfg))
 	{
 		private.POST("/favorites", mc.AddToFavorites)
+		private.GET("/favorites", mc.GetFavorites)
 	}
 }
