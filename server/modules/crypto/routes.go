@@ -14,12 +14,12 @@ import (
 )
 
 func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
-
 	hub := NewPriceHub()
 	ctx := context.Background()
 
 	go hub.Run(ctx)
 	go worker.StartBinanceStream(ctx, hub.Broadcast)
+	go worker.StartMarketCapSync(db)
 
 	mc := controllers.NewCryptoController(db, cfg, hub)
 
@@ -27,6 +27,7 @@ func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 	{
 		public.GET("/market-stats", mc.GetMarketStats)
 		public.GET("/coins", mc.ListCoins)
+		public.GET("/categories", mc.ListCategories)
 		public.GET("/ws", mc.HandleWS)
 	}
 
@@ -40,6 +41,7 @@ func RegisterRoutes(e *echo.Echo, db *gorm.DB, cfg infrastructure.AppConfig) {
 			time.Sleep(10 * time.Minute)
 		}
 	}()
+
 	private := e.Group("/api/crypto/user")
 	private.Use(middleware.RequireAuth(db, cfg))
 	{

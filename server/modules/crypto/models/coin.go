@@ -15,5 +15,7 @@ type Coin struct {
 	Name       string         `gorm:"not null" json:"name"`
 	BaseAsset  string         `gorm:"not null" json:"baseAsset"`
 	Rank       int            `gorm:"index" json:"rank"`
+	MarketCap  *float64       `json:"marketCap,omitempty"`
+	Volume24h  *float64       `json:"volume24h,omitempty"`
 	Categories []Category     `gorm:"many2many:coin_categories;" json:"categories"`
 }
