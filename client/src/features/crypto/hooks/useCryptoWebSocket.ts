@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Coin, BinanceTicker } from "../types";
 
 export const useCryptoWebSocket = (initialCoins: Coin[]) => {
-  const [coins, setCoins] = useState<Coin[]>(initialCoins);
+  const [coins, setCoins] = useState<Coin[]>([]);
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -10,32 +10,34 @@ export const useCryptoWebSocket = (initialCoins: Coin[]) => {
   const reconnectAttemptsRef = useRef(0);
   const MAX_RECONNECT_ATTEMPTS = 5;
 
-  // Initialize coins when initialCoins changes
+  // Format market cap to readable string
+  const formatMarketCap = (cap: number | undefined): string => {
+    if (!cap) return "---";
+
+    if (cap >= 1_000_000_000_000) {
+      return `$${(cap / 1_000_000_000_000).toFixed(2)}T`;
+    } else if (cap >= 1_000_000_000) {
+      return `$${(cap / 1_000_000_000).toFixed(2)}B`;
+    } else if (cap >= 1_000_000) {
+      return `$${(cap / 1_000_000).toFixed(2)}M`;
+    } else if (cap >= 1_000) {
+      return `$${(cap / 1_000).toFixed(2)}K`;
+    }
+    return `$${cap.toFixed(2)}`;
+  };
+
   useEffect(() => {
-    setCoins(initialCoins);
+    const formattedCoins = initialCoins.map((coin) => ({
+      ...coin,
+      cap: formatMarketCap(coin.marketCap),
+    }));
+    setCoins(formattedCoins);
   }, [initialCoins]);
-
-  // Format price with proper currency formatting
-  const formatPrice = useCallback((price: number): string => {
-    return price.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6,
-    });
-  }, []);
-
-  // Format percentage change
-  const formatPercentage = useCallback((percentage: number): string => {
-    const sign = percentage >= 0 ? "+" : "";
-    return `${sign}${percentage.toFixed(2)}%`;
-  }, []);
 
   useEffect(() => {
     if (initialCoins.length === 0) return;
 
     const connectWebSocket = () => {
-      // Close existing connection
       if (socketRef.current) {
         socketRef.current.close();
       }
@@ -44,7 +46,7 @@ export const useCryptoWebSocket = (initialCoins: Coin[]) => {
       socketRef.current = socket;
 
       socket.onopen = () => {
-        // console.log("✅ WebSocket connected");
+        // console.log(" WebSocket connected");
         reconnectAttemptsRef.current = 0;
       };
 
@@ -64,7 +66,6 @@ export const useCryptoWebSocket = (initialCoins: Coin[]) => {
                 const newPrice = parseFloat(ticker.c);
                 const priceChange = parseFloat(ticker.P);
 
-                // Only update if price actually changed
                 const oldPrice = coin.price
                   ? parseFloat(coin.price.replace(/[$,]/g, ""))
                   : null;
@@ -76,10 +77,21 @@ export const useCryptoWebSocket = (initialCoins: Coin[]) => {
                   return coin;
                 }
 
+                const formattedPrice = newPrice.toLocaleString("en-US", {
+                  style: "currency",
+                  currency: "USD",
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 6,
+                });
+
+                const formattedChange = `${priceChange >= 0 ? "+" : ""}${priceChange.toFixed(2)}%`;
+
                 return {
                   ...coin,
-                  price: formatPrice(newPrice),
-                  h24: formatPercentage(priceChange),
+                  price: formattedPrice,
+                  h24: formattedChange,
+
+                  cap: coin.cap || formatMarketCap(coin.marketCap),
                 };
               }
               return coin;
@@ -90,11 +102,11 @@ export const useCryptoWebSocket = (initialCoins: Coin[]) => {
         }
       };
 
-      // socket.onerror = (error) => {
-      //   if (socket.readyState !== WebSocket.CLOSED) {
-      //     console.error("❌ WebSocket error:", error);
-      //   }
-      // };
+      socket.onerror = (error) => {
+        if (socket.readyState !== WebSocket.CLOSED) {
+          // console.error("WebSocket error:", error);
+        }
+      };
 
       socket.onclose = (event) => {
         // console.log("WebSocket closed:", event.code, event.reason);
@@ -131,7 +143,7 @@ export const useCryptoWebSocket = (initialCoins: Coin[]) => {
         socketRef.current = null;
       }
     };
-  }, [initialCoins.length, formatPrice, formatPercentage]);
+  }, [initialCoins.length]);
 
   return coins;
 };

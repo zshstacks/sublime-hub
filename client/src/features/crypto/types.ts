@@ -8,8 +8,6 @@ export interface Category {
   id: number;
   name: string;
   slug: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface Coin {
@@ -18,11 +16,14 @@ export interface Coin {
   name: string;
   baseAsset: string;
   rank: number;
+  marketCap?: number;
+  volume24h?: number;
   categories?: Category[];
   createdAt?: string;
   updatedAt?: string;
-  // WebSocket live data fields
+
   price?: string;
   h24?: string;
   cap?: string;
+  vol?: string;
 }

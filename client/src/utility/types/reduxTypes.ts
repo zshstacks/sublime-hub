@@ -1,3 +1,5 @@
+import { Category, Coin } from "@/features/crypto/types";
+
 interface UserType {
   id: number;
   uniqueID: string;
@@ -20,8 +22,25 @@ export interface MonitorState {
   error: string | null;
 }
 
+export interface MarketStats {
+  totalMarketCap: number;
+  marketCapChange: number;
+  volume24h: number;
+  btcDominance: number;
+  ethGasPrice: number;
+}
+
 export interface CryptoState {
-  favorites: any[];
+  favorites: Coin[];
   loading: boolean;
   error: string | null;
+  marketStats: MarketStats | null;
+  statsLoading: boolean;
+  trendingCoins: Coin[];
+  topGainers: Coin[];
+  trendingLoading: boolean;
+  categories: Category[];
+  categoriesLoading: boolean;
+  filteredCoins: Coin[];
+  filteredCoinsLoading: boolean;
 }

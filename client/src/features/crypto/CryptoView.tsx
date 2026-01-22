@@ -9,7 +9,10 @@ import { TrendingSidebar } from "./components/TrendingSidebar";
 import Link from "next/link";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFavorites } from "@/redux/cryptoSlice/asyncActions";
+import {
+  fetchFavorites,
+  fetchTrendingCoins,
+} from "@/redux/cryptoSlice/asyncActions";
 
 const CryptoView = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -20,6 +23,7 @@ const CryptoView = () => {
 
   useEffect(() => {
     dispatch(fetchFavorites());
+    dispatch(fetchTrendingCoins());
   }, [dispatch]);
 
   return (
