@@ -58,11 +58,11 @@ export const MarketStatsHeader = () => {
 
   if (statsLoading && !marketStats) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="bg-white/5 border border-white/5 rounded-2xl p-4 h-24 animate-pulse"
+            className="bg-white/5 border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 h-20 sm:h-24 animate-pulse"
           />
         ))}
       </div>
@@ -80,7 +80,7 @@ export const MarketStatsHeader = () => {
       label: "Market Cap",
       val: formatMarketCap(marketStats.totalMarketCap),
       change: formatPercentage(marketStats.marketCapChange),
-      icon: <FiGlobe />,
+      icon: <FiGlobe className="w-4 h-4 sm:w-5 sm:h-5" />,
       isPositive: marketStats.marketCapChange >= 0,
       showTrend: true,
     },
@@ -88,7 +88,7 @@ export const MarketStatsHeader = () => {
       label: "24h Volume",
       val: formatVolume(marketStats.volume24h),
       change: null,
-      icon: <FiBarChart2 />,
+      icon: <FiBarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />,
       isPositive: true,
       showTrend: false,
     },
@@ -96,7 +96,7 @@ export const MarketStatsHeader = () => {
       label: "BTC Dominance",
       val: `${marketStats.btcDominance.toFixed(1)}%`,
       change: null,
-      icon: <FiZap />,
+      icon: <FiZap className="w-4 h-4 sm:w-5 sm:h-5" />,
       isPositive: true,
       showTrend: false,
     },
@@ -105,33 +105,33 @@ export const MarketStatsHeader = () => {
       val: `${marketStats.ethGasPrice} Gwei`,
       change: gasLevel.text,
       changeColor: gasLevel.color,
-      icon: <FiActivity />,
+      icon: <FiActivity className="w-4 h-4 sm:w-5 sm:h-5" />,
       isPositive: marketStats.ethGasPrice < 50,
       showTrend: false,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
       {statsData.map((stat, i) => (
         <div
           key={i}
-          className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-center gap-4 hover:border-white/10 transition-all shadow-xl hover:shadow-2xl group"
+          className="bg-white/5 border border-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:border-white/10 transition-all shadow-xl hover:shadow-2xl group"
         >
-          <div className="p-3 bg-white/5 rounded-xl text-[#38CA6B] group-hover:bg-[#38CA6B]/10 transition-colors">
+          <div className="p-2 sm:p-3 bg-white/5 rounded-lg sm:rounded-xl text-[#38CA6B] group-hover:bg-[#38CA6B]/10 transition-colors flex-shrink-0">
             {stat.icon}
           </div>
-          <div className="flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1">
+          <div className="flex-1 min-w-0">
+            <p className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider sm:tracking-widest text-white/20 mb-0.5 sm:mb-1 truncate">
               {stat.label}
             </p>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold text-white tabular-nums">
+            <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
+              <span className="text-base sm:text-lg lg:text-xl font-bold text-white tabular-nums">
                 {stat.val}
               </span>
               {stat.change && (
                 <span
-                  className={`text-[10px] font-bold flex items-center gap-1 ${
+                  className={`text-[9px] sm:text-[10px] font-bold flex items-center gap-0.5 sm:gap-1 ${
                     stat.changeColor
                       ? stat.changeColor
                       : stat.isPositive
@@ -140,10 +140,10 @@ export const MarketStatsHeader = () => {
                   }`}
                 >
                   {stat.showTrend && stat.isPositive && (
-                    <FiTrendingUp size={10} />
+                    <FiTrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   )}
                   {stat.showTrend && !stat.isPositive && (
-                    <FiTrendingDown size={10} />
+                    <FiTrendingDown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   )}
                   {stat.change}
                 </span>

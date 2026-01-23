@@ -29,37 +29,38 @@ export const LatencyCharts = ({ monitorId }: LatencyChartProps) => {
     }
   }, [dispatch, monitorId]);
 
-  // Formatējam datus grafikam
   const formattedData = useMemo(() => {
     return chartData.map((point) => ({
       ...point,
-
       displayTime: format(new Date(point.timestamp), "HH:mm"),
-
       latency: Math.round(point.latency * 100) / 100,
     }));
   }, [chartData]);
 
   if (loading && chartData.length === 0) {
     return (
-      <div className="h-[350px] w-full bg-white/[0.03] rounded-3xl border border-white/5 flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#38CA6B] border-t-transparent rounded-full animate-spin" />
+      <div className="h-[300px] sm:h-[350px] w-full bg-white/[0.03] rounded-2xl sm:rounded-3xl border border-white/5 flex items-center justify-center">
+        <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-[#38CA6B] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-8 space-y-6">
-      <div className="flex justify-between items-end">
+    <div className="bg-white/[0.03] border border-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-0">
         <div>
-          <h3 className="text-white font-bold text-lg">Response Latency</h3>
-          <p className="text-white/40 text-xs">Last 24 hours performance</p>
+          <h3 className="text-white font-bold text-base sm:text-lg">
+            Response Latency
+          </h3>
+          <p className="text-white/40 text-[10px] sm:text-xs">
+            Last 24 hours performance
+          </p>
         </div>
-        <div className="text-right">
-          <span className="text-[10px] font-bold text-[#38CA6B] uppercase tracking-widest block mb-1">
+        <div className="text-left sm:text-right">
+          <span className="text-[9px] sm:text-[10px] font-bold text-[#38CA6B] uppercase tracking-wider sm:tracking-widest block mb-1">
             Current Avg
           </span>
-          <span className="text-2xl font-mono font-bold text-white">
+          <span className="text-xl sm:text-2xl font-mono font-bold text-white">
             {formattedData.length > 0
               ? formattedData[formattedData.length - 1].latency
               : 0}
@@ -68,7 +69,7 @@ export const LatencyCharts = ({ monitorId }: LatencyChartProps) => {
         </div>
       </div>
 
-      <div className="h-[250px] w-full">
+      <div className="h-[200px] sm:h-[250px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={formattedData}>
             <defs>
@@ -86,7 +87,8 @@ export const LatencyCharts = ({ monitorId }: LatencyChartProps) => {
               dataKey="displayTime"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+              tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 9 }}
+              className="sm:text-[10px]"
               minTickGap={30}
             />
             <YAxis hide={true} domain={[0, "auto"]} />
@@ -95,24 +97,26 @@ export const LatencyCharts = ({ monitorId }: LatencyChartProps) => {
                 backgroundColor: "#14202D",
                 border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: "12px",
-                fontSize: "12px",
+                fontSize: "11px",
                 color: "#fff",
               }}
-              itemStyle={{ color: "#38CA6B" }}
+              itemStyle={{ color: "#38CA6B", fontSize: "11px" }}
               labelStyle={{
                 color: "rgba(255,255,255,0.5)",
                 marginBottom: "4px",
+                fontSize: "10px",
               }}
             />
             <Area
               type="monotone"
               dataKey="latency"
               stroke="#38CA6B"
-              strokeWidth={3}
+              strokeWidth={2}
+              className="sm:stroke-[3] sm:[&_circle]:r-6"
               fillOpacity={1}
               fill="url(#latencyGradient)"
               dot={formattedData.length < 10}
-              activeDot={{ r: 6, strokeWidth: 0 }}
+              activeDot={{ r: 5, strokeWidth: 0 }}
             />
           </AreaChart>
         </ResponsiveContainer>

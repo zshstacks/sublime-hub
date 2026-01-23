@@ -1,146 +1,78 @@
 import { useState, useEffect, useRef } from "react";
 import { Coin, BinanceTicker } from "../types";
 
+let globalSocket: WebSocket | null = null;
+const listeners = new Set<(tickers: BinanceTicker[]) => void>();
+
 export const useCryptoWebSocket = (initialCoins: Coin[]) => {
   const [coins, setCoins] = useState<Coin[]>([]);
-  const socketRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-  const reconnectAttemptsRef = useRef(0);
-  const MAX_RECONNECT_ATTEMPTS = 5;
+  // const isCleaningUp = useRef(false);
 
-  // Format market cap to readable string
   const formatMarketCap = (cap: number | undefined): string => {
     if (!cap) return "---";
-
-    if (cap >= 1_000_000_000_000) {
+    if (cap >= 1_000_000_000_000)
       return `$${(cap / 1_000_000_000_000).toFixed(2)}T`;
-    } else if (cap >= 1_000_000_000) {
-      return `$${(cap / 1_000_000_000).toFixed(2)}B`;
-    } else if (cap >= 1_000_000) {
-      return `$${(cap / 1_000_000).toFixed(2)}M`;
-    } else if (cap >= 1_000) {
-      return `$${(cap / 1_000).toFixed(2)}K`;
-    }
-    return `$${cap.toFixed(2)}`;
+    if (cap >= 1_000_000_000) return `$${(cap / 1_000_000_000).toFixed(2)}B`;
+    return `$${(cap / 1_000_000).toFixed(2)}M`;
   };
 
   useEffect(() => {
-    const formattedCoins = initialCoins.map((coin) => ({
-      ...coin,
-      cap: formatMarketCap(coin.marketCap),
-    }));
-    setCoins(formattedCoins);
+    setCoins(
+      initialCoins.map((c) => ({ ...c, cap: formatMarketCap(c.marketCap) })),
+    );
   }, [initialCoins]);
 
   useEffect(() => {
     if (initialCoins.length === 0) return;
 
-    const connectWebSocket = () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
+    const handleMessage = (tickers: BinanceTicker[]) => {
+      setCoins((currentCoins) =>
+        currentCoins.map((coin) => {
+          const searchSymbol = coin.symbol.endsWith("USDT")
+            ? coin.symbol
+            : `${coin.symbol}USDT`;
+          const ticker = tickers.find((t) => t.s === searchSymbol);
 
-      const socket = new WebSocket("ws://localhost:8000/api/crypto/ws");
-      socketRef.current = socket;
-
-      socket.onopen = () => {
-        // console.log(" WebSocket connected");
-        reconnectAttemptsRef.current = 0;
-      };
-
-      socket.onmessage = (event) => {
-        try {
-          const tickers: BinanceTicker[] = JSON.parse(event.data);
-
-          setCoins((currentCoins) =>
-            currentCoins.map((coin) => {
-              const searchSymbol = coin.symbol.endsWith("USDT")
-                ? coin.symbol
-                : `${coin.symbol}USDT`;
-
-              const ticker = tickers.find((t) => t.s === searchSymbol);
-
-              if (ticker) {
-                const newPrice = parseFloat(ticker.c);
-                const priceChange = parseFloat(ticker.P);
-
-                const oldPrice = coin.price
-                  ? parseFloat(coin.price.replace(/[$,]/g, ""))
-                  : null;
-
-                if (
-                  oldPrice !== null &&
-                  Math.abs(oldPrice - newPrice) < 0.000001
-                ) {
-                  return coin;
-                }
-
-                const formattedPrice = newPrice.toLocaleString("en-US", {
-                  style: "currency",
-                  currency: "USD",
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 6,
-                });
-
-                const formattedChange = `${priceChange >= 0 ? "+" : ""}${priceChange.toFixed(2)}%`;
-
-                return {
-                  ...coin,
-                  price: formattedPrice,
-                  h24: formattedChange,
-
-                  cap: coin.cap || formatMarketCap(coin.marketCap),
-                };
-              }
-              return coin;
-            }),
-          );
-        } catch (err) {
-          // console.error("Error processing WebSocket message:", err);
-        }
-      };
-
-      socket.onerror = (error) => {
-        if (socket.readyState !== WebSocket.CLOSED) {
-          // console.error("WebSocket error:", error);
-        }
-      };
-
-      socket.onclose = (event) => {
-        // console.log("WebSocket closed:", event.code, event.reason);
-
-        if (reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS) {
-          reconnectAttemptsRef.current += 1;
-          const delay = Math.min(
-            1000 * Math.pow(2, reconnectAttemptsRef.current),
-            30000,
-          );
-
-          // console.log(
-          //   `Reconnecting in ${delay}ms (attempt ${reconnectAttemptsRef.current})`,
-          // );
-
-          reconnectTimeoutRef.current = setTimeout(() => {
-            connectWebSocket();
-          }, delay);
-        }
-      };
+          if (ticker) {
+            return {
+              ...coin,
+              price: parseFloat(ticker.c).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 6,
+              }),
+              h24: `${parseFloat(ticker.P) >= 0 ? "+" : ""}${parseFloat(ticker.P).toFixed(2)}%`,
+            };
+          }
+          return coin;
+        }),
+      );
     };
 
-    connectWebSocket();
+    listeners.add(handleMessage);
+
+    if (!globalSocket || globalSocket.readyState === WebSocket.CLOSED) {
+      globalSocket = new WebSocket("ws://localhost:8000/api/crypto/ws");
+
+      globalSocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          listeners.forEach((listener) => listener(data));
+        } catch (e) {}
+      };
+
+      globalSocket.onclose = () => {
+        globalSocket = null;
+      };
+    }
 
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
+      listeners.delete(handleMessage);
 
-      if (socketRef.current) {
-        socketRef.current.onclose = null;
-        socketRef.current.close(1000, "Component unmounted");
-        socketRef.current = null;
+      if (listeners.size === 0 && globalSocket) {
+        globalSocket.close();
+        globalSocket = null;
       }
     };
   }, [initialCoins.length]);

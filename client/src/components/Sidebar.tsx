@@ -1,6 +1,6 @@
 "use client";
 
-import { RiBankLine, RiSettings4Line, RiMenu4Line } from "react-icons/ri";
+import { RiSettings4Line, RiMenu4Line } from "react-icons/ri";
 import { MdRadar } from "react-icons/md";
 import { GoGraph } from "react-icons/go";
 import { IoIosLogOut } from "react-icons/io";
@@ -15,7 +15,6 @@ import { logoutUser } from "@/redux/authSlice/asyncActions";
 import { FiCreditCard } from "react-icons/fi";
 
 const navItems = [
-  { name: "Finance", href: "/hub/finance", icon: <RiBankLine size={20} /> },
   { name: "Uptime Monitor", href: "/hub/monitor", icon: <MdRadar size={20} /> },
   { name: "Crypto Tracker", href: "/hub/crypto", icon: <GoGraph size={20} /> },
 ];

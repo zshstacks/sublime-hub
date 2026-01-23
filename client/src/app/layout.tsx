@@ -15,7 +15,7 @@ import { Toaster } from "sonner";
 // });
 
 export const metadata: Metadata = {
-  title: "Markdown by zshstacks",
+  title: "SublimeHub",
 };
 
 export default function RootLayout({

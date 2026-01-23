@@ -12,10 +12,12 @@ export const StatItem = ({
   align = "text-center",
 }: StatItemProps) => (
   <div className={align}>
-    <div className={`text-xl font-mono font-bold tracking-tighter ${color}`}>
+    <div
+      className={`text-lg sm:text-xl font-mono font-bold tracking-tighter ${color}`}
+    >
       {value}
     </div>
-    <div className="text-[9px] text-white/20 uppercase font-black tracking-widest mt-1">
+    <div className="text-[8px] sm:text-[9px] text-white/20 uppercase font-black tracking-wider sm:tracking-widest mt-0.5 sm:mt-1">
       {label}
     </div>
   </div>
