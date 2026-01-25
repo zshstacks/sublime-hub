@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   FiMessageSquare,
   FiTerminal,
@@ -8,12 +8,21 @@ import {
   FiGithub,
   FiArrowRight,
   FiCpu,
-  FiActivity,
-  FiGlobe,
   FiHeart,
+  FiActivity,
+  FiTrendingUp,
+  FiServer,
+  FiDollarSign,
+  FiFilter,
+  FiChevronRight,
+  FiClock,
+  FiCode,
+  FiZap,
 } from "react-icons/fi";
 
 const DashboardView = () => {
+  const [selectedModule, setSelectedModule] = useState("all");
+
   const supporters = [
     "zshstacks",
     "zshstacks",
@@ -24,6 +33,110 @@ const DashboardView = () => {
     "zshstacks",
     "zshstacks",
   ];
+
+  const modules = [
+    { id: "all", name: "All Updates", icon: FiActivity },
+    { id: "uptime", name: "Uptime Monitor", icon: FiServer },
+    { id: "crypto", name: "Crypto Tracker", icon: FiDollarSign },
+    { id: "core", name: "Core System", icon: FiCpu },
+  ];
+
+  const updates = [
+    {
+      id: 1,
+      date: "2026-01-08",
+      version: "v1.0.4",
+      module: "core",
+      title: "Kernel Optimization & UI Overhaul",
+      description:
+        "Major update to the UI engine with custom Tailwind-based animation system. Performance increased by 40% on mobile devices. Refactored component architecture for better maintainability.",
+      tags: ["Refactor", "UI/UX", "Performance"],
+      status: "latest",
+      commits: 23,
+      filesChanged: 47,
+    },
+    {
+      id: 2,
+      date: "2026-01-07",
+      version: "v1.0.3",
+      module: "crypto",
+      title: "WebSocket Optimization for Crypto Feed",
+      description:
+        "Implemented connection pooling and automatic reconnection logic for Binance WebSocket API. Reduced memory usage by 35% and improved price update latency.",
+      tags: ["WebSockets", "Optimization", "Crypto"],
+      status: "stable",
+      commits: 12,
+      filesChanged: 18,
+    },
+    {
+      id: 3,
+      date: "2026-01-05",
+      version: "v1.0.2",
+      module: "uptime",
+      title: "Uptime Guard Integration",
+      description:
+        "Initial module for server monitoring is now live. WebSocket support added for real-time latency tracking. Dashboard now displays live heartbeat status.",
+      tags: ["Feature", "Monitoring", "WebSockets"],
+      status: "stable",
+      commits: 31,
+      filesChanged: 52,
+    },
+    {
+      id: 4,
+      date: "2026-01-03",
+      version: "v1.0.1",
+      module: "crypto",
+      title: "Framer Motion Price Animations",
+      description:
+        "Added smooth price transition animations using Framer Motion. Implemented color-coded price changes (green for up, red for down).",
+      tags: ["UI/UX", "Animation"],
+      status: "stable",
+      commits: 8,
+      filesChanged: 15,
+    },
+  ];
+
+  const stats = [
+    {
+      label: "Total Commits",
+      value: "74",
+      icon: FiGitCommit,
+      color: "text-blue-400",
+    },
+    {
+      label: "Active Modules",
+      value: "2",
+      icon: FiActivity,
+      color: "text-[#38CA6B]",
+    },
+    {
+      label: "Last Deploy",
+      value: "2h ago",
+      icon: FiClock,
+      color: "text-purple-400",
+    },
+    { label: "Uptime", value: "99.9%", icon: FiZap, color: "text-yellow-400" },
+  ];
+
+  const filteredUpdates =
+    selectedModule === "all"
+      ? updates
+      : updates.filter((update) => update.module === selectedModule);
+
+  const getTagColor = (tag: string) => {
+    const colors = {
+      Refactor: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+      "UI/UX": "bg-blue-500/10 text-blue-400 border-blue-500/20",
+      Performance: "bg-[#38CA6B]/10 text-[#38CA6B] border-[#38CA6B]/20",
+      WebSockets: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+      Optimization: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+      Crypto: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+      Feature: "bg-pink-500/10 text-pink-400 border-pink-500/20",
+      Monitoring: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+      Animation: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+    };
+    return colors[tag] || "bg-white/10 text-white/60 border-white/20";
+  };
 
   return (
     <div className="flex-1 p-4 sm:p-6 lg:p-10 space-y-6 sm:space-y-8 lg:space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-700">
@@ -57,65 +170,139 @@ const DashboardView = () => {
           </div>
         </div>
 
-        {/* Abstract Background Icon */}
         <FiCpu className="absolute -right-8 sm:-right-10 -bottom-8 sm:-bottom-10 text-[#38CA6B]/5 w-40 h-40 sm:w-52 sm:h-52 lg:w-64 lg:h-64 rotate-12" />
       </section>
 
+      {/* STATS GRID */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {stats.map((stat, idx) => (
+          <div
+            key={idx}
+            className="bg-white/[0.02] border border-white/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-[#38CA6B]/30 transition-all group"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <stat.icon className={`${stat.color} w-5 h-5 sm:w-6 sm:h-6`} />
+              <span className="text-[8px] sm:text-[9px] font-mono text-white/30 uppercase">
+                Live
+              </span>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black mb-1">
+              {stat.value}
+            </div>
+            <div className="text-[10px] sm:text-xs text-white/40 uppercase tracking-wider font-bold">
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-        {/* DEV UPDATES BLOCK */}
+        {/* DEV UPDATES BLOCK - REDESIGNED */}
         <div className="lg:col-span-8 space-y-4 sm:space-y-6">
-          <div className="flex items-center justify-between px-2">
+          {/* Header with Filters */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-2">
             <h3 className="font-black text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white/60 flex items-center gap-2">
-              <FiMessageSquare className="text-[#38CA6B] w-3.5 h-3.5 sm:w-4 sm:h-4" />{" "}
-              Developer Updates
+              <FiMessageSquare className="text-[#38CA6B] w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              Developer Changelog
             </h3>
+            <div className="flex items-center gap-2">
+              <FiFilter className="text-white/30 w-3.5 h-3.5" />
+              <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+                {modules.map((module) => {
+                  const Icon = module.icon;
+                  return (
+                    <button
+                      key={module.id}
+                      onClick={() => setSelectedModule(module.id)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                        selectedModule === module.id
+                          ? "bg-[#38CA6B] text-[#07141b]"
+                          : "bg-white/5 text-white/40 hover:bg-white/10"
+                      }`}
+                    >
+                      <Icon className="w-3 h-3" />
+                      {module.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
+          {/* Updates Timeline */}
           <div className="space-y-3 sm:space-y-4">
-            {/* Update 1 */}
-            <div className="group bg-white/[0.02] border border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] hover:border-[#38CA6B]/30 transition-all">
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <span className="text-[9px] sm:text-[10px] font-mono text-[#38CA6B]">
-                  2026-01-08 // v1.0.4
-                </span>
-                <FiGitCommit className="text-white/10 group-hover:text-[#38CA6B] transition-colors w-4 h-4 flex-shrink-0" />
-              </div>
-              <h4 className="text-lg sm:text-xl font-bold mb-2 uppercase tracking-tight">
-                Kernel Optimization & UI Overhaul
-              </h4>
-              <p className="text-white/40 text-xs sm:text-sm leading-relaxed mb-3 sm:mb-4">
-                I've just pushed a massive update to the UI engine.
-                Transitioning from standard CSS to a custom Tailwind-based
-                animation system. Performance increased by 40% on mobile
-                devices.
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <span className="text-[8px] sm:text-[9px] font-black px-2 py-1 bg-[#38CA6B]/10 text-[#38CA6B] rounded uppercase">
-                  Refactor
-                </span>
-                <span className="text-[8px] sm:text-[9px] font-black px-2 py-1 bg-blue-500/10 text-blue-400 rounded uppercase">
-                  UI/UX
-                </span>
-              </div>
-            </div>
+            {filteredUpdates.map((update, idx) => (
+              <div
+                key={update.id}
+                className="group relative bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/5 p-5 sm:p-6 rounded-2xl sm:rounded-3xl hover:border-[#38CA6B]/30 transition-all hover:shadow-lg hover:shadow-[#38CA6B]/5"
+              >
+                {/* Status Badge */}
+                {update.status === "latest" && (
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-[#38CA6B] to-emerald-400 text-[#07141b] px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-lg">
+                    ✦ Latest
+                  </div>
+                )}
 
-            {/* Update 2 */}
-            <div className="group bg-white/[0.02] border border-white/5 p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] hover:border-[#38CA6B]/30 transition-all">
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <span className="text-[9px] sm:text-[10px] font-mono text-white/20">
-                  2026-01-05 // v1.0.2
-                </span>
-                <FiGitCommit className="text-white/10 w-4 h-4 flex-shrink-0" />
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4 gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <span className="text-[9px] sm:text-[10px] font-mono text-[#38CA6B] font-bold">
+                        {update.date}
+                      </span>
+                      <span className="text-white/20">•</span>
+                      <span className="text-[9px] sm:text-[10px] font-mono text-white/40">
+                        {update.version}
+                      </span>
+                    </div>
+                    <h4 className="text-lg sm:text-xl font-black mb-2 uppercase tracking-tight group-hover:text-[#38CA6B] transition-colors">
+                      {update.title}
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-3 text-white/20 flex-shrink-0">
+                    <FiGitCommit className="w-5 h-5 group-hover:text-[#38CA6B] transition-colors" />
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-white/50 text-xs sm:text-sm leading-relaxed mb-4">
+                  {update.description}
+                </p>
+
+                {/* Stats & Tags */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex gap-2 flex-wrap">
+                    {update.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className={`text-[8px] sm:text-[9px] font-black px-2.5 py-1 rounded-md uppercase border ${getTagColor(tag)}`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-4 text-[9px] sm:text-[10px] font-mono text-white/30">
+                    <span className="flex items-center gap-1">
+                      <FiGitCommit className="w-3 h-3" />
+                      {update.commits} commits
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FiCode className="w-3 h-3" />
+                      {update.filesChanged} files
+                    </span>
+                  </div>
+                </div>
               </div>
-              <h4 className="text-lg sm:text-xl font-bold mb-2 uppercase tracking-tight text-white/60">
-                Uptime Guard Integration
-              </h4>
-              <p className="text-white/30 text-xs sm:text-sm leading-relaxed">
-                Initial module for server monitoring is now live. WebSocket
-                support added for real-time latency tracking.
-              </p>
-            </div>
+            ))}
           </div>
+
+          {/* View All Button */}
+          <button className="w-full bg-white/[0.02] border border-white/5 hover:border-[#38CA6B]/30 p-4 rounded-xl sm:rounded-2xl transition-all group">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-white/40 group-hover:text-[#38CA6B] flex items-center justify-center gap-2">
+              View All Updates
+              <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </button>
         </div>
 
         <div className="lg:col-span-4 space-y-6 sm:space-y-8">
@@ -145,6 +332,33 @@ const DashboardView = () => {
             </div>
           </div>
 
+          {/* Quick Actions */}
+          <div className="bg-gradient-to-b from-white/[0.03] to-transparent border border-white/5 rounded-2xl sm:rounded-3xl p-5 sm:p-6 space-y-3">
+            <h4 className="font-black text-xs uppercase tracking-wider text-white/60 mb-4">
+              Quick Actions
+            </h4>
+
+            <button className="w-full flex items-center justify-between bg-white/[0.02] border border-white/5 hover:border-[#38CA6B]/30 p-3 sm:p-4 rounded-xl group transition-all">
+              <div className="flex items-center gap-3">
+                <FiServer className="text-blue-400 w-4 h-4" />
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                  Monitor Status
+                </span>
+              </div>
+              <FiChevronRight className="text-white/20 group-hover:translate-x-1 transition-transform w-4 h-4" />
+            </button>
+
+            <button className="w-full flex items-center justify-between bg-white/[0.02] border border-white/5 hover:border-[#38CA6B]/30 p-3 sm:p-4 rounded-xl group transition-all">
+              <div className="flex items-center gap-3">
+                <FiDollarSign className="text-yellow-400 w-4 h-4" />
+                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                  Crypto Markets
+                </span>
+              </div>
+              <FiChevronRight className="text-white/20 group-hover:translate-x-1 transition-transform w-4 h-4" />
+            </button>
+          </div>
+
           {/* Social / Support Box */}
           <div className="bg-gradient-to-b from-[#38CA6B]/10 to-transparent border border-[#38CA6B]/20 rounded-2xl sm:rounded-[2.5rem] p-6 sm:p-8">
             <FiTerminal className="text-[#38CA6B] mb-3 sm:mb-4 w-5 h-5 sm:w-6 sm:h-6" />
@@ -171,6 +385,22 @@ const DashboardView = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes ticker {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .animate-ticker {
+          display: inline-flex;
+          animation: ticker 30s linear infinite;
+          white-space: nowrap;
+        }
+      `}</style>
     </div>
   );
 };

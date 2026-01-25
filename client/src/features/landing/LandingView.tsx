@@ -1,19 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import {
   FiArrowRight,
   FiActivity,
   FiTrendingUp,
   FiShield,
-  FiBox,
-  FiCommand,
   FiMenu,
   FiX,
   FiGithub,
+  FiClock,
+  FiBarChart2,
+  FiZap,
+  FiLayers,
+  FiCheck,
+  FiAlertCircle,
 } from "react-icons/fi";
-import { cn } from "@/lib/utils";
 import { FaXTwitter } from "react-icons/fa6";
 
 const LandingView = () => {
@@ -49,13 +51,10 @@ const LandingView = () => {
 
       {/*navbar*/}
       <nav
-        className={cn(
-          "fixed top-0 inset-x-0 z-50 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto border-b border-white/5 backdrop-blur-md transition-all duration-500",
-          revealClasses,
-        )}
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-8 py-5 max-w-7xl mx-auto border-b border-white/5 backdrop-blur-md transition-all duration-500 ${revealClasses}`}
       >
         <div className="flex items-center gap-2 font-black text-xl tracking-tighter uppercase group cursor-pointer">
-          <FiCommand
+          <FiLayers
             className="text-[#38CA6B] group-hover:rotate-90 transition-transform duration-500"
             size={24}
           />
@@ -66,18 +65,24 @@ const LandingView = () => {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8 font-bold text-[10px] tracking-[0.2em] uppercase">
-          <Link
+          <a
+            href="#features"
+            className="text-white/40 hover:text-white transition-colors"
+          >
+            Features
+          </a>
+          <a
             href="/login"
             className="text-white/40 hover:text-white transition-colors"
           >
             Login
-          </Link>
-          <Link
+          </a>
+          <a
             href="/register"
             className="bg-[#38CA6B]/10 border border-[#38CA6B]/20 text-[#38CA6B] px-5 py-2 rounded-lg hover:bg-[#38CA6B] hover:text-[#07141b] transition-all active:scale-95 shadow-[0_0_20px_rgba(56,202,107,0.1)]"
           >
             Get Access
-          </Link>
+          </a>
         </div>
 
         {/* Mobile Toggle */}
@@ -91,25 +96,31 @@ const LandingView = () => {
 
       {/*  MOBILE MENU OVERLAY */}
       <div
-        className={cn(
-          "fixed inset-0 z-[49] bg-[#07141b] flex flex-col items-center justify-center gap-8 transition-transform duration-500 md:hidden",
-          isMenuOpen ? "translate-y-0" : "-translate-y-full",
-        )}
+        className={`fixed inset-0 z-[49] bg-[#07141b] flex flex-col items-center justify-center gap-8 transition-transform duration-500 md:hidden ${
+          isMenuOpen ? "translate-y-0" : "-translate-y-full"
+        }`}
       >
-        <Link
+        <a
+          onClick={() => setIsMenuOpen(false)}
+          href="#features"
+          className="text-3xl font-black tracking-widest uppercase hover:text-[#38CA6B] transition-colors"
+        >
+          Features
+        </a>
+        <a
           onClick={() => setIsMenuOpen(false)}
           href="/login"
           className="text-3xl font-black tracking-widest uppercase hover:text-[#38CA6B] transition-colors"
         >
           Login
-        </Link>
-        <Link
+        </a>
+        <a
           onClick={() => setIsMenuOpen(false)}
           href="/register"
           className="text-3xl font-black tracking-widest uppercase text-[#38CA6B]"
         >
           Register
-        </Link>
+        </a>
         <div className="flex gap-10 mt-12">
           <a href="https://github.com/zshstacks" target="_blank">
             <FiGithub size={32} className="text-white/40 hover:text-white" />
@@ -123,13 +134,13 @@ const LandingView = () => {
       {/* HERO SECTION */}
       <section className="relative z-10 pt-48 pb-20 px-6">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
-          <div className={cn("text-left", revealClasses, "delay-200")}>
+          <div className={`text-left ${revealClasses} delay-200`}>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#38CA6B]/5 border border-[#38CA6B]/10 text-[#38CA6B] text-[9px] font-bold uppercase tracking-[0.3em] mb-6">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#38CA6B] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#38CA6B]"></span>
               </span>
-              System Operational 2026
+              Live WebSocket Powered
             </div>
             <h1 className="text-7xl md:text-8xl font-black tracking-[-0.04em] leading-[0.9] mb-8">
               UNIFIED <br />
@@ -138,40 +149,24 @@ const LandingView = () => {
               </span>
             </h1>
             <p className="text-white/50 text-xl max-w-lg mb-10 leading-relaxed font-medium border-l-2 border-[#38CA6B]/30 pl-6">
-              The ecosystem for developers and investors. Monitoring, Finance,
-              and Crypto assets, synchronized in one sublime interface.
+              Real-time uptime monitoring and live crypto tracking in one
+              powerful platform. Monitor your infrastructure and watch markets
+              move simultaneously.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link
+              <a
                 href="/register"
                 className="group flex items-center gap-3 bg-[#38CA6B] text-[#07141b] px-8 py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-lg hover:shadow-[#38CA6B]/30"
               >
-                Launch System{" "}
+                Start Monitoring{" "}
                 <FiArrowRight className="group-hover:translate-x-2 transition-transform" />
-              </Link>
-              <div className="flex -space-x-3 items-center">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="w-10 h-10 rounded-full border-2 border-[#07141b] bg-[#1a2c38] flex items-center justify-center text-[10px] font-bold text-white/40"
-                  >
-                    U{i}
-                  </div>
-                ))}
-                <span className="pl-6 text-[10px] font-black text-white/40 uppercase tracking-widest">
-                  Join 2k+ users
-                </span>
-              </div>
+              </a>
             </div>
           </div>
 
-          {/* Abstract Dashboard Visual */}
+          {/* Live Dashboard Preview */}
           <div
-            className={cn(
-              "relative hidden lg:block animate-float",
-              revealClasses,
-              "delay-500",
-            )}
+            className={`relative hidden lg:block animate-float ${revealClasses} delay-500`}
           >
             <div className="relative z-10 bg-white/[0.03] border border-white/10 p-4 rounded-[2rem] backdrop-blur-3xl shadow-2xl group hover:border-[#38CA6B]/20 transition-colors duration-500">
               <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-4 px-4">
@@ -181,18 +176,65 @@ const LandingView = () => {
                   <div className="w-2.5 h-2.5 rounded-full bg-[#38CA6B]/40" />
                 </div>
                 <div className="text-[10px] font-mono text-white/20 uppercase tracking-[0.3em]">
-                  sublime_kernel_v1.0
+                  live_dashboard
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="h-32 bg-[#38CA6B]/5 rounded-xl border border-[#38CA6B]/10 p-4 relative overflow-hidden group/card">
-                  <div className="h-1 w-1/2 bg-[#38CA6B] rounded-full mb-2" />
-                  <div className="h-1 w-full bg-white/5 rounded-full mb-2" />
-                  <div className="flex items-end gap-1 absolute bottom-4 left-4 right-4 h-12">
-                    {[40, 70, 45, 90, 65, 80].map((h, i) => (
+              <div className="space-y-4">
+                {/* Monitor Status Row */}
+                <div className="flex gap-2">
+                  <div className="flex-1 h-16 bg-[#38CA6B]/10 rounded-xl border border-[#38CA6B]/20 p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FiCheck className="text-[#38CA6B]" size={16} />
+                      <span className="text-[9px] font-bold text-white/60">
+                        api.prod
+                      </span>
+                    </div>
+                    <div className="text-[10px] font-mono text-[#38CA6B]">
+                      99.8%
+                    </div>
+                  </div>
+                  <div className="flex-1 h-16 bg-rose-500/10 rounded-xl border border-rose-500/20 p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <FiAlertCircle className="text-rose-500" size={16} />
+                      <span className="text-[9px] font-bold text-white/60">
+                        cdn.api
+                      </span>
+                    </div>
+                    <div className="text-[10px] font-mono text-rose-500">
+                      94.2%
+                    </div>
+                  </div>
+                </div>
+
+                {/* Crypto Prices */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                    <div className="text-[9px] text-white/40 mb-1">
+                      BTC/USDT
+                    </div>
+                    <div className="text-sm font-bold text-[#38CA6B] animate-pulse">
+                      $94,582
+                    </div>
+                    <div className="text-[8px] text-[#38CA6B]">+2.4%</div>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                    <div className="text-[9px] text-white/40 mb-1">
+                      ETH/USDT
+                    </div>
+                    <div className="text-sm font-bold text-rose-500 animate-pulse">
+                      $3,241
+                    </div>
+                    <div className="text-[8px] text-rose-500">-1.2%</div>
+                  </div>
+                </div>
+
+                {/* Response Time Graph */}
+                <div className="h-20 bg-[#38CA6B]/5 rounded-xl border border-[#38CA6B]/10 p-3 relative overflow-hidden">
+                  <div className="flex items-end gap-1 h-full">
+                    {[40, 70, 45, 90, 65, 80, 55, 75].map((h, i) => (
                       <div
                         key={i}
-                        className="flex-1 bg-[#38CA6B]/20 rounded-t-sm animate-grow"
+                        className="flex-1 bg-[#38CA6B]/30 rounded-t-sm animate-grow"
                         style={{
                           height: `${h}%`,
                           animationDelay: `${i * 0.1}s`,
@@ -200,17 +242,8 @@ const LandingView = () => {
                       />
                     ))}
                   </div>
-                </div>
-                <div className="h-32 bg-white/5 rounded-xl border border-white/5 p-4 flex flex-col justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-                    <FiActivity size={14} className="text-[#38CA6B]" />
-                  </div>
-                  <div className="h-1 w-full bg-white/10 rounded-full" />
-                </div>
-                <div className="col-span-2 h-20 bg-gradient-to-r from-[#38CA6B]/10 to-transparent rounded-xl border border-[#38CA6B]/10 flex items-center px-6">
-                  <div className="flex gap-4 w-full">
-                    <div className="h-2 w-1/4 bg-white/10 rounded-full" />
-                    <div className="h-2 w-1/3 bg-white/5 rounded-full" />
+                  <div className="absolute top-2 left-3 text-[8px] text-white/40 font-mono">
+                    Response Latency
                   </div>
                 </div>
               </div>
@@ -220,88 +253,272 @@ const LandingView = () => {
         </div>
       </section>
 
-      {/* MODULES BENTO BOX  */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 py-32">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            {
-              icon: FiShield,
-              title: "Finance Tracker",
-              delay: "delay-700",
-              desc: "Military-grade encryption for your personal cash flow. Track every cent with precision.",
-            },
-            {
-              icon: FiActivity,
-              title: "Uptime Guard",
-              delay: "delay-800",
-              desc: "Global heartbeat monitoring for your servers. Get notified before your users do.",
-            },
-            {
-              icon: FiTrendingUp,
-              title: "Crypto Watcher",
-              delay: "delay-900",
-              desc: "Live price action and portfolio balance across multiple exchanges and wallets.",
-            },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className={cn(
-                "p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-[#38CA6B]/30 transition-all group relative overflow-hidden",
-                revealClasses,
-                item.delay,
-              )}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#38CA6B]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <item.icon
-                size={32}
-                className="text-[#38CA6B] mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform"
-              />
-              <h3 className="text-2xl font-bold mb-3 tracking-tight group-hover:text-[#38CA6B] transition-colors">
-                {item.title}
-              </h3>
-              <p className="text-white/40 text-sm leading-relaxed">
-                {item.desc}
+      {/* FEATURES SECTION */}
+      <section
+        id="features"
+        className="relative z-10 max-w-7xl mx-auto px-6 py-32"
+      >
+        <div className={`text-center mb-16 ${revealClasses} delay-600`}>
+          <h2 className="text-5xl font-black tracking-tighter mb-4 uppercase">
+            Dual-Core <span className="text-[#38CA6B]">Monitoring</span>
+          </h2>
+          <p className="text-white/40 text-lg max-w-2xl mx-auto">
+            Two powerful modules working in perfect harmony with real-time
+            WebSocket updates
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          {/* Uptime Monitor */}
+          <div
+            className={`p-8 rounded-[2.5rem] bg-gradient-to-br from-[#38CA6B]/10 to-transparent border border-[#38CA6B]/20 hover:border-[#38CA6B]/40 transition-all group relative overflow-hidden ${revealClasses} delay-700`}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#38CA6B]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <FiActivity
+                  size={40}
+                  className="text-[#38CA6B] group-hover:scale-110 transition-transform"
+                />
+                <h3 className="text-3xl font-black tracking-tight">
+                  Uptime Monitor
+                </h3>
+              </div>
+
+              <p className="text-white/50 mb-6 leading-relaxed">
+                Track your infrastructure health with military precision. Get
+                instant alerts when services go down.
               </p>
+
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <FiClock
+                    className="text-[#38CA6B] mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      HTTP Heartbeat Monitoring
+                    </div>
+                    <div className="text-xs text-white/40">
+                      30s to 60m check intervals
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FiBarChart2
+                    className="text-[#38CA6B] mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      Stability Indicators
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Real-time uptime percentage per monitor
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FiZap
+                    className="text-[#38CA6B] mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      Response Latency Graphs
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Live heartbeat timeline visualization
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FiShield
+                    className="text-[#38CA6B] mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      System Health Dashboard
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Overall health percentage & status overview
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
+
+          {/* Crypto Tracker */}
+          <div
+            className={`p-8 rounded-[2.5rem] bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 hover:border-amber-500/40 transition-all group relative overflow-hidden ${revealClasses} delay-800`}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <FiTrendingUp
+                  size={40}
+                  className="text-amber-400 group-hover:scale-110 transition-transform"
+                />
+                <h3 className="text-3xl font-black tracking-tight">
+                  Crypto Tracker
+                </h3>
+              </div>
+
+              <p className="text-white/50 mb-6 leading-relaxed">
+                Live cryptocurrency data via Binance WebSocket API. Watch
+                markets move in real-time.
+              </p>
+
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <FiTrendingUp
+                    className="text-amber-400 mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      450+ Live Assets
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Real-time price, market cap & 24h change
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FiLayers
+                    className="text-amber-400 mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      Smart Categorization
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Layer1, DeFi, AI, Gaming, Meme, Stable, Layer2
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FiBarChart2
+                    className="text-amber-400 mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      Market Intelligence
+                    </div>
+                    <div className="text-xs text-white/40">
+                      24h volume, BTC dominance, ETH gas tracker
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <FiZap
+                    className="text-amber-400 mt-1 flex-shrink-0"
+                    size={16}
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-white/80">
+                      Trending & Top Gainers
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Favorites list with Framer Motion animations
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tech Stack Highlight */}
+        <div
+          className={`p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all ${revealClasses} delay-900`}
+        >
+          <h4 className="text-xl font-black mb-4 text-center text-white/60">
+            POWERED BY MODERN ARCHITECTURE
+          </h4>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              "WebSocket",
+              "Next.js",
+              "React",
+              "TypeScript",
+              "Redux",
+              "Golang",
+              "Echo",
+              "PostgreSQL",
+              "JWT Auth",
+              "OAuth2",
+            ].map((tech) => (
+              <span
+                key={tech}
+                className="text-[10px] font-black px-4 py-2 bg-white/5 border border-white/10 rounded-lg tracking-widest text-white/40 hover:text-[#38CA6B] hover:border-[#38CA6B]/30 transition-all cursor-default"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* FUTURE SECTION  */}
+      {/* SECURITY & AUTH SECTION */}
       <section
-        className={cn(
-          "max-w-7xl mx-auto px-6 pb-40",
-          revealClasses,
-          "delay-[1100ms]",
-        )}
+        className={`max-w-7xl mx-auto px-6 pb-40 ${revealClasses} delay-[1000ms]`}
       >
         <div className="relative rounded-[3rem] bg-gradient-to-b from-white/[0.05] to-transparent border border-white/5 p-12 overflow-hidden group">
           <div className="absolute top-0 right-0 p-12 opacity-5">
-            <FiBox
+            <FiShield
               size={200}
               className="group-hover:rotate-12 transition-transform duration-[2s]"
             />
           </div>
           <div className="relative z-10 max-w-2xl">
             <h2 className="text-4xl font-black tracking-tighter mb-6 uppercase">
-              Extensibility by design.
+              Enterprise-grade security.
             </h2>
-            <p className="text-white/40 mb-8 font-medium">
-              SublimeHub is built to grow. Our upcoming SDK will allow you to
-              plug in your own modules written in{" "}
-              <span className="text-[#38CA6B]">TypeScript</span>,{" "}
-              <span className="text-[#38CA6B]">Go</span>, or{" "}
-              <span className="text-[#38CA6B]">Rust</span>.
+            <p className="text-white/40 mb-6 font-medium">
+              Your data is protected with JWT authentication, refresh token
+              rotation, and secure OAuth2 integration with Google. Email
+              confirmation with OTP and password recovery ensure your account
+              stays protected.
             </p>
-            <div className="flex gap-4">
-              {["Go", "Rust", "TS", "Odin"].map((lang) => (
-                <span
-                  key={lang}
-                  className="text-[10px] font-black px-4 py-1.5 bg-white/5 border border-white/10 rounded-md tracking-widest text-white/40 hover:text-[#38CA6B] hover:border-[#38CA6B]/30 transition-all cursor-default"
-                >
-                  {lang}
-                </span>
-              ))}
+            <div className="grid grid-cols-2 gap-4 mt-8">
+              <div className="flex items-start gap-3">
+                <FiCheck className="text-[#38CA6B] mt-1" size={20} />
+                <div>
+                  <div className="font-bold text-sm">JWT Cookie Auth</div>
+                  <div className="text-xs text-white/40">
+                    Refresh token rotation
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <FiCheck className="text-[#38CA6B] mt-1" size={20} />
+                <div>
+                  <div className="font-bold text-sm">OAuth2 Google</div>
+                  <div className="text-xs text-white/40">Seamless login</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <FiCheck className="text-[#38CA6B] mt-1" size={20} />
+                <div>
+                  <div className="font-bold text-sm">Email Verification</div>
+                  <div className="text-xs text-white/40">
+                    Automatic OTP delivery
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <FiCheck className="text-[#38CA6B] mt-1" size={20} />
+                <div>
+                  <div className="font-bold text-sm">Password Recovery</div>
+                  <div className="text-xs text-white/40">OTP-based reset</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -327,11 +544,11 @@ const LandingView = () => {
         </div>
         <div className="flex flex-col items-center gap-2">
           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-white/10">
-            SublimeHub // Operational 2026
+            SublimeHub // Real-time Monitoring Platform
           </p>
           <div className="h-[1px] w-12 bg-[#38CA6B]/20" />
           <p className="text-[9px] font-medium text-white/5 mt-2">
-            v1.0.4-stable // Riga, LV
+            v1.0.4-stable // WebSocket Powered
           </p>
         </div>
       </footer>
@@ -360,6 +577,20 @@ const LandingView = () => {
         }
         .animate-float {
           animation: float 6s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
+        }
+        .animate-shimmer {
+          animation: shimmer 3s ease-in-out infinite;
         }
       `}</style>
     </div>
