@@ -5,6 +5,8 @@ A comprehensive full-stack web platform combining real-time uptime monitoring an
 ![SublimeHub Banner](https://img.shields.io/badge/SublimeHub-Workspace-00D9A3?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
+![](./screenshots/sublime-showcase.gif)
+
 ## Table of Contents
 
 - [Overview](#overview)
